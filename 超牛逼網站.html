@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>許家瑋的個人學習歷程檔案</title>
+    <style>
+        :root {
+            --primary-dark: #1a202c;
+            --accent-blue: #3182ce;
+            --bg-light: #f8fafc;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; background-color: var(--bg-light); margin: 0; padding: 0; scroll-behavior: smooth; }
+
+        /* 1. 置頂名片區塊 */
+        .profile-header { background: linear-gradient(135deg, var(--primary-dark) 0%, #2d3748 100%); color: white; padding: 60px 20px; text-align: center; }
+        .business-card { max-width: 850px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); padding: 35px; border-radius: 24px; backdrop-filter: blur(12px); display: flex; align-items: center; gap: 35px; border: 1px solid rgba(255,255,255,0.1); }
+        .avatar-box { width: 180px; height: 240px; background: #cbd5e0; border-radius: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid rgba(255,255,255,0.2); }
+        .avatar-box img, .avatar-box iframe { width: 100%; height: 100%; border: none; object-fit: cover; }
+        .info-content { text-align: left; flex-grow: 1; }
+        .info-content h1 { margin: 0 0 10px 0; font-size: 2.2rem; letter-spacing: 2px; }
+        .bio-short { font-size: 1rem; opacity: 0.9; margin-bottom: 20px; border-left: 4px solid var(--accent-blue); padding-left: 15px; line-height: 1.6; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.95rem; }
+        .detail-grid span { color: #a0aec0; font-weight: bold; }
+
+        /* 2. 固定式導航列 */
+        .sticky-nav { position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000; padding: 12px 0; text-align: center; }
+        .nav-btn { background: none; border: 2px solid var(--accent-blue); color: var(--accent-blue); padding: 8px 25px; margin: 0 8px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .nav-btn:hover { background: var(--accent-blue); color: white; }
+
+        /* 3. 內容區塊 */
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .section-block { background: white; padding: 45px; border-radius: 20px; box-shadow: var(--card-shadow); margin-bottom: 50px; border: 1px solid #edf2f7; }
+        h2.section-title { font-size: 1.8rem; color: var(--primary-dark); border-bottom: 4px solid var(--accent-blue); display: inline-block; margin-bottom: 35px; padding-bottom: 5px; }
+
+        /* 4. 檔案預覽網格 */
+        .preview-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 30px; }
+        .file-card { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; background: #fff; transition: 0.3s; }
+        .file-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px rgba(0,0,0,0.1); }
+        .file-iframe { width: 100%; height: 500px; border: none; background: #f1f5f9; }
+        .file-info { padding: 20px; border-top: 1px solid #eee; }
+        .file-info strong { display: block; margin-bottom: 8px; color: var(--accent-blue); font-size: 1.1rem; }
+        .file-info p { margin: 0; font-size: 0.95rem; color: #4a5568; line-height: 1.6; }
+
+        /* 幹部經歷 */
+        .exp-list { border-left: 3px solid #e2e8f0; padding-left: 25px; }
+        .exp-item { margin-bottom: 35px; position: relative; }
+        .exp-item::before { content: ""; position: absolute; left: -31.5px; top: 6px; width: 12px; height: 12px; background: var(--accent-blue); border-radius: 50%; box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.2); }
+
+        @media (max-width: 768px) { 
+            .business-card { flex-direction: column; text-align: center; } 
+            .info-content { text-align: center; } 
+            .preview-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="profile-header" id="top">
+        <div class="business-card">
+            <div class="avatar-box">
+                <iframe src="https://drive.google.com/file/d/1TM6hCawbC1K_N1uBz8V2CzUJ4Ek9hyAM/preview" allow="autoplay"></iframe>
+            </div>
+            <div class="info-content">
+                <h1>許家瑋</h1>
+                <div class="bio-short">
+                    我是許家瑋，我是一名熱衷於探索的學習者。我的興趣是看美劇、聽西方流行樂。我十分喜歡一句話：「人生就如同打磨岩石，沒有不斷地研磨，就沒有現在的光滑。」
+                </div>
+                <div class="detail-grid">
+                    <div><span>🎂 出生：</span> 2008 / 02 / 24</div>
+                    <div><span>✨ 星座：</span> 雙魚座</div>
+                    <div><span>📞 聯絡：</span> 0975-793-218</div>
+                    <div><span>📱 社群：</span> @scw.224</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="sticky-nav">
+        <button class="nav-btn" onclick="location.href='#top'">個人資料</button>
+        <button class="nav-btn" onclick="location.href='#extra'">多元表現</button>
+        <button class="nav-btn" onclick="location.href='#leader'">幹部經歷</button>
+        <button class="nav-btn" onclick="location.href='#study'">學習歷程</button>
+    </nav>
+
+    <div class="container">
+        
+        <section class="section-block" id="extra">
+            <h2 class="section-title">多元表現成果</h2>
+            <div class="preview-container">
+                
+                <div class="file-card">
+                    <iframe class="file-iframe" src="https://drive.google.com/file/d/13dxLJvoyrYQsKwYI-gDhjk_wLVxS8feW/preview"></iframe>
+                    <div class="file-info">
+                        <strong>【競賽】全國高級中學學校閱讀心得比賽</strong>
+                        <p>書名：《你的善良必須有點鋒芒》。我在那本書中體會到了我在我這個年紀中不會體驗到的人生道理。讀完後有一種「又變成熟了」感覺。</p>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <iframe class="file-iframe" src="https://drive.google.com/file/d/1_hkdOxT2e9p2y42dBfT_to9y61ifNlbL/preview"></iframe>
+                    <div class="file-info">
+                        <strong>【專題】智慧居家：基於物聯網的自動化控制系統</strong>
+                        <p>高二 AIOT 專題實作。整合 Arduino 與 ESP32 技術，開發智慧 RFID 感應門鎖，展現科技探究與解決問題的能力。</p>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <iframe class="file-iframe" src="https://drive.google.com/file/d/1FvSX7aM7_tZU_ZmqvlGjM1pZbkiUoNST/preview"></iframe>
+                    <div class="file-info">
+                        <strong>【選修】醫藥衛生面面觀成果報告</strong>
+                        <p>跨領域探索醫療與生命科學，透過實作與討論培養嚴謹的科學探究精神與人文關懷同理心。</p>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <iframe class="file-iframe" src="https://drive.google.com/file/d/1SGl64DLPmk5AkTKvvNQlnf41Jf-MxOnD/preview"></iframe>
+                    <div class="file-info">
+                        <strong>【檢定】GEPT 全民英檢中級證書 (CEFR B1+)</strong>
+                        <p>通過聽、讀、說、寫四項測驗。這是我平時接觸美劇與英文流行樂的實力累積證明。</p>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <iframe class="file-iframe" src="https://drive.google.com/file/d/1y5-a2NgPKbG3eOLCQcS1M5VQVlkla69G/preview"></iframe>
+                    <div class="file-info">
+                        <strong>【團體】校內英語話劇比賽 - 道具組心得</strong>
+                        <p>擔任道具長負責舞台背景呈現，在團隊合作中學習溝通協調與解決衝突，達成共識並獲得佳績。</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="section-block" id="leader">
+            <h2 class="section-title">幹部經歷</h2>
+            <div class="exp-list">
+                <div class="exp-item">
+                    <strong>113學年度 西洋棋社 專題長</strong>
+                    <p>負責規劃每週的社團專題活動與團體競賽，負責構思活動主題並提升社員參與度，鍛鍊領導力與企劃能力。</p>
+                </div>
+                <div class="exp-item">
+                    <strong>114學年度 班級環保股長</strong>
+                    <p>負責全班垃圾分類監控，帶領組員處理每日回收物。透過落實環保規範，培養了負責任的態度與團隊管理經驗。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-block" id="study">
+            <h2 class="section-title">學習歷程檔案</h2>
+            <div style="text-align: center; padding: 50px; color: #ccc; border: 2px dashed #eee; border-radius: 12px;">
+                內容建置中，稍後補齊...
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
