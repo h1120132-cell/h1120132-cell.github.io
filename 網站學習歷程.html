@@ -193,14 +193,17 @@
             box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15);
         }
 
+        /* 修改後的排列：文字在上方，iframe在下方 */
+        .file-info { padding: 25px; background: rgba(15, 23, 42, 0.9); flex-shrink: 0; }
+        
         .file-iframe-wrapper {
             width: 100%;
             height: 450px;
             background: #000;
+            flex-grow: 1;
         }
         .file-iframe { width: 100%; height: 100%; border: none; opacity: 0.9; }
 
-        .file-info { padding: 25px; background: rgba(15, 23, 42, 0.9); }
         .file-tag {
             display: inline-block;
             color: var(--star-blue);
@@ -287,7 +290,7 @@
             <div class="info-content">
                 <h1>許家瑋</h1>
                 <div class="bio-short">
-                    探索未知領域的領航員。專注於 AIOT 科技與醫藥衛生的跨域結合。
+                    探索未知領域的領航員。
                     <br>「人生就如同打磨岩石，沒有不斷地研磨，就沒有現在的光滑。」
                 </div>
                 <div class="detail-grid">
@@ -315,57 +318,57 @@
             <div class="preview-container">
                 
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/13dxLJvoyrYQsKwYI-gDhjk_wLVxS8feW/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">學術競賽</span>
                         <strong>全國高中閱讀心得比賽</strong>
                         <p>書名：《你的善良必須有點鋒芒》。深入探討自我價值與處世邊界，反映了我對人格成長的深刻體會與反思能力。</p>
                     </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/13dxLJvoyrYQsKwYI-gDhjk_wLVxS8feW/preview"></iframe>
+                    </div>
                 </div>
 
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1_hkdOxT2e9p2y42dBfT_to9y61ifNlbL/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">專題研究</span>
                         <strong>智慧居家：自動化控制系統</strong>
                         <p>高二 AIOT 專題實作。整合 Arduino 與 ESP32 技術，解決實際生活場景問題，展現邏輯架構與程式開發能力。</p>
                     </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1_hkdOxT2e9p2y42dBfT_to9y61ifNlbL/preview"></iframe>
+                    </div>
                 </div>
 
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1FvSX7aM7_tZU_ZmqvlGjM1pZbkiUoNST/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">選修成果</span>
                         <strong>醫藥衛生面面觀成果報告</strong>
                         <p>跨領域探索醫療與生命科學，透過實作與討論培養嚴謹的科學探究精神與人文關懷同理心。</p>
                     </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1FvSX7aM7_tZU_ZmqvlGjM1pZbkiUoNST/preview"></iframe>
+                    </div>
                 </div>
 
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1SGl64DLPmk5AkTKvvNQlnf41Jf-MxOnD/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">語言能力</span>
                         <strong>GEPT 全民英檢中級證書</strong>
                         <p>通過 CEFR B1+ 等級。體現了我長期接觸西洋流行文化與美劇所累積的實質競爭力。</p>
                     </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1SGl64DLPmk5AkTKvvNQlnf41Jf-MxOnD/preview"></iframe>
+                    </div>
                 </div>
 
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1y5-a2NgPKbG3eOLCQcS1M5VQVlkla69G/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">團隊合作</span>
                         <strong>英語話劇比賽心得</strong>
                         <p>負責舞台視覺與團隊物資調度，在壓力下學習跨部門協作與創意思考，展現極佳的團隊融入感。</p>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1y5-a2NgPKbG3eOLCQcS1M5VQVlkla69G/preview"></iframe>
                     </div>
                 </div>
 
@@ -396,37 +399,37 @@
                 
                 <!-- Matlab 檔案 -->
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1Xepxwt2iQypzArAVFotQPk_E3em3qJ3s/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">技術實作</span>
                         <strong>Matlab 修課紀錄</strong>
-                        <p>掌握工程數學計算與資料視覺化，透過 Matlab 進行演算法開發與訊號分析，展現強大的數據處理潛力。</p>
+                        <p>掌握工程數學計算與資料視覺化，透過 Matlab 進行演算法開發與訊號分析，展現強大的數據處理能力與跨學科應用潛力。</p>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1Xepxwt2iQypzArAVFotQPk_E3em3qJ3s/preview"></iframe>
                     </div>
                 </div>
 
                 <!-- 物理探究 檔案 -->
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1Z6hAd1iF3oPTmsvyQzqzSrKZrRl-tGRP/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">自然科學</span>
                         <strong>物理探究與實作實驗報告</strong>
-                        <p>針對物理現象進行系統性觀測與實驗驗證，從假設到結論展現完整的科學思辨過程與數據精準度。</p>
+                        <p>針對物理現象進行系統性觀測與實驗驗證。透過嚴謹的數據收集與科學分析，培養對未知現象的洞察力與實證精神。</p>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1Z6hAd1iF3oPTmsvyQzqzSrKZrRl-tGRP/preview"></iframe>
                     </div>
                 </div>
 
                 <!-- Python 檔案 -->
                 <div class="file-card">
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1J9baWPE6UCpoOm1i4jSFyJaH1Me08XCk/preview"></iframe>
-                    </div>
                     <div class="file-info">
                         <span class="file-tag">資訊工程</span>
                         <strong>Python 學習與實作紀錄</strong>
-                        <p>熟悉 Python 語法結構與常用函式庫。從基礎演算法到實作應用，體現了程式開發的邏輯敏銳度。</p>
+                        <p>熟悉 Python 語法結構、流程控制與函式庫應用。從邏輯演練到實作開發，展現資訊素養與利用科技解決問題的能力。</p>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1J9baWPE6UCpoOm1i4jSFyJaH1Me08XCk/preview"></iframe>
                     </div>
                 </div>
 
