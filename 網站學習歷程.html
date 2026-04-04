@@ -3,301 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>許家瑋的個人學習歷程檔案 | Space Edition</title>
+    <title>許家瑋的個人學習歷程檔案 | Academic Portfolio</title>
     <style>
         :root {
-            --space-black: #020617;
-            --space-dark: #0f172a;
-            --nebula-purple: #7c3aed;
-            --star-blue: #38bdf8;
-            --text-silver: #e2e8f0;
-            --text-dim: #94a3b8;
-            --glass: rgba(15, 23, 42, 0.8);
-            --border-glow: 0 0 15px rgba(56, 189, 248, 0.3);
+            /* 根據上傳圖片調整的暖色調 */
+            --bg-base: #fdf6e9; /* 暖米色背景 */
+            --bg-card: #ffffff;
+            --primary-warm: #e2c2a4; /* 杏色主調 */
+            --secondary-warm: #c5a689;
+            --accent-brown: #8b735b;
+            --text-main: #4a443f; /* 深啡灰色 */
+            --text-sub: #7e746b;
+            --border-color: #f1e6d5;
+            --nav-bg: rgba(253, 246, 233, 0.9);
         }
 
         * { box-sizing: border-box; }
 
         body { 
-            font-family: 'Inter', 'Orbitron', 'Microsoft JhengHei', sans-serif; 
-            background-color: var(--space-black); 
-            color: var(--text-silver);
+            font-family: 'Inter', 'Noto Sans TC', sans-serif; 
+            background-color: var(--bg-base); 
+            color: var(--text-main);
             margin: 0; 
             padding: 0; 
             scroll-behavior: smooth; 
-            line-height: 1.6;
+            line-height: 1.7;
             overflow-x: hidden;
         }
 
-        /* 1. 外太空動態背景 */
-        .space-bg {
+        /* 溫潤質感的背景設計 */
+        .academic-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
-        }
-        .stars {
-            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: transparent url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/123163/stars.png') repeat top center;
-            opacity: 0.5;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(226, 194, 164, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(139, 115, 91, 0.05) 0%, transparent 40%),
+                linear-gradient(135deg, #fdf6e9 0%, #faf0e0 100%);
         }
 
-        /* 2. 置頂名片區塊 */
+        /* 置頂名片區塊 */
         .profile-header { 
-            padding: 100px 20px; 
-            text-align: center;
+            padding: 120px 20px 60px; 
+            display: flex;
+            justify-content: center;
+        }
+
+        .academic-card { 
+            max-width: 1000px; 
+            width: 100%;
+            background: var(--bg-card); 
+            padding: 50px; 
+            border-radius: 16px;
+            display: flex; 
+            flex-direction: row; 
+            align-items: flex-start;
+            gap: 60px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 15px 40px rgba(139, 115, 91, 0.08);
             position: relative;
         }
 
-        .business-card { 
-            max-width: 900px; 
-            margin: 0 auto; 
-            background: var(--glass); 
-            padding: 40px; 
-            border-radius: 24px; 
-            backdrop-filter: blur(20px); 
-            display: flex; 
-            align-items: center; 
-            gap: 40px; 
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            box-shadow: var(--border-glow);
+        .avatar-section {
+            flex-shrink: 0;
+            width: 240px;
         }
 
         .avatar-box { 
-            width: 200px; 
-            height: 260px; 
-            background: #1e293b; 
-            border-radius: 16px; 
-            flex-shrink: 0; 
+            width: 240px; 
+            height: 320px; 
+            background: #fff; 
+            border-radius: 12px; 
             overflow: hidden; 
-            border: 2px solid var(--star-blue);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            border: 4px solid #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
         .avatar-box iframe { width: 100%; height: 100%; border: none; }
 
-        .info-content { text-align: left; flex-grow: 1; }
-        .info-content h1 { 
-            margin: 0 0 15px 0; 
-            font-size: 2.8rem; 
-            font-weight: 800;
-            letter-spacing: 2px;
-            background: linear-gradient(to right, #fff, var(--star-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .bio-short { 
-            font-size: 1.1rem; 
-            color: var(--text-dim);
-            margin-bottom: 25px; 
-            border-left: 3px solid var(--nebula-purple); 
-            padding-left: 20px; 
-        }
-
-        .detail-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 12px; 
-        }
-        .detail-item {
-            background: rgba(255,255,255,0.03);
-            padding: 10px 15px;
-            border-radius: 8px;
+        .contact-info-mini {
+            margin-top: 25px;
             font-size: 0.9rem;
-            border: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-sub);
         }
-        .detail-item span { color: var(--star-blue); margin-right: 8px; }
+        .contact-info-mini div { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .contact-info-mini svg { width: 16px; color: var(--secondary-warm); }
 
-        /* 3. 固定式導航列 */
+        .info-section { flex-grow: 1; }
+        
+        .info-section h1 { 
+            margin: 0 0 10px 0; 
+            font-size: 3rem; 
+            font-weight: 800;
+            color: var(--accent-brown);
+        }
+        
+        .academic-title {
+            font-size: 1.1rem;
+            color: var(--secondary-warm);
+            font-weight: 600;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .quote-box {
+            font-style: italic;
+            color: var(--text-sub);
+            border-left: 2px solid var(--primary-warm);
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            background: #fffaf5;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .trait-list { display: flex; flex-direction: column; gap: 20px; }
+        .trait-title {
+            font-size: 1.3rem; 
+            font-weight: 700;
+            color: var(--accent-brown);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .trait-desc {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            opacity: 0.9;
+        }
+
+        /* 導航列 */
         .sticky-nav { 
             position: sticky; 
             top: 0; 
-            background: rgba(2, 6, 23, 0.9); 
-            backdrop-filter: blur(15px); 
-            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+            background: var(--nav-bg); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid var(--border-color);
             z-index: 1000; 
             padding: 15px 0; 
             text-align: center; 
         }
         .nav-btn { 
             background: transparent; 
-            border: 1px solid transparent;
-            color: var(--text-dim); 
-            padding: 8px 24px; 
-            margin: 0 5px; 
-            border-radius: 30px; 
+            border: none;
+            color: var(--text-sub); 
+            padding: 10px 20px; 
             cursor: pointer; 
             font-weight: 600; 
-            transition: all 0.3s ease; 
+            transition: 0.3s; 
         }
         .nav-btn:hover, .nav-btn.active { 
-            color: var(--star-blue); 
-            border-color: var(--star-blue);
-            text-shadow: 0 0 10px var(--star-blue);
-            box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.1);
+            color: var(--accent-brown); 
+            background: rgba(226, 194, 164, 0.15);
+            border-radius: 4px;
         }
 
-        /* 4. 內容區塊 */
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
         
         .section-block { 
-            background: var(--glass); 
+            background: #fff; 
             padding: 60px; 
-            border-radius: 32px; 
-            margin-bottom: 60px; 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 16px; 
+            margin-bottom: 80px; 
+            box-shadow: 0 5px 20px rgba(139, 115, 91, 0.03);
+            border: 1px solid var(--border-color);
         }
 
         h2.section-title { 
-            font-size: 1.8rem; 
-            color: #fff; 
-            margin-top: 0;
-            margin-bottom: 40px; 
+            font-size: 1.5rem; 
+            color: var(--accent-brown); 
+            margin-bottom: 45px; 
             display: flex;
             align-items: center;
             gap: 15px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
+            font-weight: 700;
         }
         h2.section-title::after {
             content: "";
             flex-grow: 1;
             height: 1px;
-            background: linear-gradient(to right, var(--star-blue), transparent);
+            background: var(--border-color);
         }
 
-        /* 5. 檔案預覽網格 */
-        .preview-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); 
-            gap: 30px; 
-        }
-        
+        /* 檔案預覽 */
+        .preview-container { display: flex; flex-direction: column; gap: 40px; }
         .file-card { 
-            border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 20px; 
-            overflow: hidden; 
             display: flex; 
-            flex-direction: column; 
-            background: rgba(30, 41, 59, 0.5); 
-            transition: all 0.4s ease;
-        }
-        .file-card:hover { 
-            transform: translateY(-8px) scale(1.02); 
-            border-color: var(--star-blue);
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15);
-        }
-
-        /* 修改後的排列：文字在上方，iframe在下方 */
-        .file-info { padding: 25px; background: rgba(15, 23, 42, 0.9); flex-shrink: 0; }
-        
-        .file-iframe-wrapper {
-            width: 100%;
-            height: 450px;
-            background: #000;
-            flex-grow: 1;
-        }
-        .file-iframe { width: 100%; height: 100%; border: none; opacity: 0.9; }
-
-        .file-tag {
-            display: inline-block;
-            color: var(--star-blue);
-            font-size: 0.7rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-            border: 1px solid var(--star-blue);
-            padding: 2px 10px;
-            border-radius: 4px;
-        }
-        .file-info strong { 
-            display: block; 
-            margin-bottom: 12px; 
-            color: #fff; 
-            font-size: 1.2rem; 
-        }
-        .file-info p { 
-            margin: 0; 
-            font-size: 0.9rem; 
-            color: var(--text-dim); 
-            line-height: 1.6; 
-        }
-
-        /* 幹部經歷 */
-        .exp-list { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .exp-card {
-            background: rgba(30, 41, 59, 0.3);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: #fff; 
+            border: 1px solid var(--border-color);
+            min-height: 480px;
+            overflow: hidden;
+            border-radius: 12px;
             transition: 0.3s;
         }
-        .exp-card:hover {
-            border-color: var(--nebula-purple);
-            box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+        .file-card:hover { 
+            box-shadow: 0 10px 30px rgba(139, 115, 91, 0.1);
         }
-        .exp-year {
-            color: var(--nebula-purple);
-            font-size: 0.8rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            display: block;
+
+        .file-info { 
+            padding: 40px; 
+            width: 38%; 
+            background: #fdfbf8;
+            border-right: 1px solid var(--border-color);
         }
-        .exp-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
+        .file-iframe-wrapper { width: 62%; background: #eeeae4; }
+        .file-iframe { width: 100%; height: 100%; border: none; }
+
+        .file-tag {
+            background: var(--primary-warm);
             color: #fff;
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            display: inline-block;
         }
+        .file-info strong { font-size: 1.4rem; color: var(--accent-brown); margin-bottom: 25px; display: block; line-height: 1.4; }
+        .file-info ul { padding: 0; list-style: none; margin: 0; }
+        .file-info li { position: relative; margin-bottom: 18px; color: var(--text-main); font-size: 0.95rem; padding-left: 25px; }
+        .file-info li::before { content: "●"; position: absolute; left: 0; color: var(--secondary-warm); font-size: 0.8rem; top: 2px; }
 
-        footer {
-            text-align: center;
-            padding: 60px;
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            letter-spacing: 1px;
+        /* 經歷 */
+        .exp-list { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .exp-card {
+            padding: 35px;
+            border: 1px solid var(--border-color);
+            background: #fdfbf8;
+            border-radius: 12px;
         }
+        .exp-year { color: var(--secondary-warm); font-size: 0.85rem; font-weight: 700; }
+        .exp-title { font-size: 1.2rem; margin: 8px 0; color: var(--accent-brown); font-weight: 700; }
+        .exp-card p { font-size: 0.95rem; color: var(--text-sub); margin: 0; }
 
-        @media (max-width: 768px) { 
-            .business-card { flex-direction: column; text-align: center; } 
-            .info-content { text-align: center; } 
-            .avatar-box { width: 180px; height: 180px; border-radius: 50%; }
-            .detail-grid { grid-template-columns: 1fr; }
-            .section-block { padding: 40px 20px; }
+        footer { padding: 60px; text-align: center; color: var(--text-sub); font-size: 0.8rem; letter-spacing: 1px; }
+
+        @media (max-width: 950px) {
+            .academic-card { flex-direction: column; align-items: center; text-align: center; }
+            .file-card { flex-direction: column; }
+            .file-info, .file-iframe-wrapper { width: 100%; }
+            .file-iframe-wrapper { height: 400px; }
+            .exp-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="space-bg">
-        <div class="stars"></div>
-    </div>
+    <div class="academic-bg"></div>
 
     <header class="profile-header" id="top">
-        <div class="business-card">
-            <div class="avatar-box">
-                <iframe src="https://drive.google.com/file/d/1TM6hCawbC1K_N1uBz8V2CzUJ4Ek9hyAM/preview" allow="autoplay"></iframe>
-            </div>
-            <div class="info-content">
-                <h1>許家瑋</h1>
-                <div class="bio-short">
-                    探索未知領域的領航員。
-                    <br>「人生就如同打磨岩石，沒有不斷地研磨，就沒有現在的光滑。」
+        <div class="academic-card">
+            <div class="avatar-section">
+                <div class="avatar-box">
+                    <iframe src="https://drive.google.com/file/d/1TM6hCawbC1K_N1uBz8V2CzUJ4Ek9hyAM/preview"></iframe>
                 </div>
-                <div class="detail-grid">
-                    <div class="detail-item"><span>☄️</span> 2008 / 02 / 24 (雙魚座)</div>
-                    <div class="detail-item"><span>📡</span> williamshiu1@gmail.com</div>
-                    <div class="detail-item"><span>🛰️</span> @scw.224 (ins)</div>
-                    <div class="detail-item"><span>🌍</span> 台北, 台灣</div>
+                <div class="contact-info-mini">
+                    <div>📧 williamshiu1@gmail.com</div>
+                    <div>🎂 2008 / 02 / 24</div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h1>許家瑋</h1>
+                <div class="academic-title">薇閣中學三年甲班36號</div>
+                
+                <div class="quote-box">
+                    「人生就如同打磨岩石，沒有不斷地研磨，就沒有現在的光滑。」
+                </div>
+
+                <div class="trait-list">
+                    <div class="trait-item">
+                        <div class="trait-title">勇於面對失敗</div>
+                        <div class="trait-desc">在工程實作與科學實驗中，視錯誤為優化數據的關鍵路徑。具備極強的抗壓性，能從系統崩潰中冷靜分析根因，完成迭代開發。</div>
+                    </div>
+                    <div class="trait-item">
+                        <div class="trait-title">勇於探索</div>
+                        <div class="trait-desc">不侷限於單一學科，從純數學論文到硬體自動化控制，展現強烈的跨領域學習意願，主動尋求技術與人文結合的最佳解。</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -307,21 +287,144 @@
         <button class="nav-btn" onclick="scrollToId('top')">關於我</button>
         <button class="nav-btn" onclick="scrollToId('extra')">多元表現</button>
         <button class="nav-btn" onclick="scrollToId('leader')">幹部經歷</button>
-        <button class="nav-btn" onclick="scrollToId('study')">學習歷程</button>
+        <button class="nav-btn" onclick="scrollToId('study')">課程成果</button>
     </nav>
 
     <div class="container">
         
-        <!-- 多元表現 -->
         <section class="section-block" id="extra">
-            <h2 class="section-title">多元表現成果</h2>
+            <h2 class="section-title">多元表現成果庫</h2>
             <div class="preview-container">
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">語言探究</span>
+                        <strong>外語自主學習成果</strong>
+                        <ul>
+                            <li><strong>自主規劃</strong> 展現高度的學習積極性，獨立規劃並執行外語能力提升計畫。</li>
+                            <li><strong>語言素養</strong> 深化對目標語言的理解，提升聽、說、讀、寫之綜合應用實力。</li>
+                            <li><strong>持續精進</strong> 紀錄學習歷程中的轉折與突破，展現追求卓越的恆毅力。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://docs.google.com/document/d/18ENsGClDwyeFWgg2X86PzlwjASI3NJrL/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">資訊安全</span>
+                        <strong>密碼學小論文</strong>
+                        <ul>
+                            <li><strong>邏輯建構</strong> 深入研析加密演算法與數論基礎，展現嚴謹的邏輯推導能力。</li>
+                            <li><strong>資安素養</strong> 理解數位時代下的資訊防護機制，建立宏觀的資訊安全視野。</li>
+                            <li><strong>學術研究</strong> 具備獨立進行專題式研究與撰寫學術論文的專業素養。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1sRhd5GOKpko0Pb5GUbsk7J0fvn5lxoXb/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">醫療探究</span>
+                        <strong>醫藥衛生面面觀</strong>
+                        <ul>
+                            <li><strong>跨域視野</strong> 探索公共衛生與現代醫學之連結，展現對醫療體系的關注。</li>
+                            <li><strong>議題分析</strong> 具備整理複雜醫療資訊並轉化為具體見解的能力。</li>
+                            <li><strong>社會實踐</strong> 將學術探究對接社會需求，體現全人發展素養。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1sqKmGGoF5upVWaP9LG5BHRMrLq8rN614/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">人工智慧</span>
+                        <strong>與 AI 協作製作網站</strong>
+                        <ul>
+                            <li><strong>人機協作</strong> 熟練運用大型語言模型輔助編程，優化開發效率。</li>
+                            <li><strong>前端技術</strong> 掌握網頁開發流程，從結構規劃到介面優化。</li>
+                            <li><strong>數位適應力</strong> 展現對新興科技的敏銳度，實現技術創新的具具體產出。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1NvELUHJAf_dY4_N7vw8UHx7n8O_ih4tU/preview"></iframe>
+                    </div>
+                </div>
                 
                 <div class="file-card">
                     <div class="file-info">
+                        <span class="file-tag">自主學習</span>
+                        <strong>圓周率小論文</strong>
+                        <ul>
+                            <li><strong>數理鑽研</strong> 深入探討圓周率的歷史與數學特性，展現對純數學領域的熱情。</li>
+                            <li><strong>文獻整合</strong> 具備獨立蒐集資料與統整複雜公式的能力。</li>
+                            <li><strong>邏輯呈現</strong> 將艱澀的數學推導轉化為易懂的小論文架構。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://docs.google.com/document/d/1sd9lK8Gwg3GTwkPkiHlW9BsQLkHEM0-a/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">人文展現</span>
+                        <strong>英語話劇演出成果</strong>
+                        <ul>
+                            <li><strong>外語溝通</strong> 流暢的英語台詞表達，展現語言應用能力。</li>
+                            <li><strong>團隊協作</strong> 與團員高度默契配合，完成大型舞台展演。</li>
+                            <li><strong>自信展現</strong> 在群眾面前大方呈現，具備良好的心理素質與表現力。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1391pNIlo6-xUeYdGGEuYqLKnoWsfxMWT/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">檢定證照</span>
+                        <strong>英語能力檢定成果</strong>
+                        <ul>
+                            <li><strong>標準化評量</strong> 通過國際認可之語言檢定，量化外語實力。</li>
+                            <li><strong>持續精進</strong> 展現對語言學習的恆毅力與系統化準備。</li>
+                            <li><strong>競爭優勢</strong> 具備閱讀專業原文文獻的基本語言門檻。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1-56oNBT5Wrw5NQ7Ugf0gX_H6N_igGdWN/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">運算思維</span>
+                        <strong>Bebras 國際挑戰賽</strong>
+                        <ul>
+                            <li><strong>演算法思維</strong> 展現優異的邏輯拆解與模式識別能力。</li>
+                            <li><strong>問題解決</strong> 能在有限時間內找出最優解路徑。</li>
+                            <li><strong>數位素養</strong> 具備與國際接軌的資訊素養。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1FJ0GttF0ga1zqiHX0eQ0B5U7yThUDS_y/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card" id="reading-reflection">
+                    <div class="file-info">
                         <span class="file-tag">學術競賽</span>
                         <strong>全國高中閱讀心得比賽</strong>
-                        <p>書名：《你的善良必須有點鋒芒》。深入探討自我價值與處世邊界，反映了我對人格成長的深刻體會與反思能力。</p>
+                        <ul>
+                            <li><strong>自我覺察</strong> 透過閱讀展現對人格心理的高層次反思。</li>
+                            <li><strong>批判思維</strong> 能精確識別與界定自我價值。</li>
+                            <li><strong>深度溝通</strong> 將抽象情感邏輯轉化為條理清晰的文字。</li>
+                        </ul>
                     </div>
                     <div class="file-iframe-wrapper">
                         <iframe class="file-iframe" src="https://drive.google.com/file/d/13dxLJvoyrYQsKwYI-gDhjk_wLVxS8feW/preview"></iframe>
@@ -330,116 +433,93 @@
 
                 <div class="file-card">
                     <div class="file-info">
-                        <span class="file-tag">專題研究</span>
+                        <span class="file-tag">硬體開發</span>
                         <strong>智慧居家：自動化控制系統</strong>
-                        <p>高二 AIOT 專題實作。整合 Arduino 與 ESP32 技術，解決實際生活場景問題，展現邏輯架構與程式開發能力。</p>
+                        <ul>
+                            <li><strong>硬體整合</strong> 串接 Arduino 與 ESP32 技術。</li>
+                            <li><strong>解決問題</strong> 將技術應用於日常生活痛點。</li>
+                            <li><strong>邏輯架構</strong> 具備完整的工程研發邏輯。</li>
+                        </ul>
                     </div>
                     <div class="file-iframe-wrapper">
                         <iframe class="file-iframe" src="https://drive.google.com/file/d/1_hkdOxT2e9p2y42dBfT_to9y61ifNlbL/preview"></iframe>
                     </div>
                 </div>
 
-                <div class="file-card">
-                    <div class="file-info">
-                        <span class="file-tag">選修成果</span>
-                        <strong>醫藥衛生面面觀成果報告</strong>
-                        <p>跨領域探索醫療與生命科學，透過實作與討論培養嚴謹的科學探究精神與人文關懷同理心。</p>
-                    </div>
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1FvSX7aM7_tZU_ZmqvlGjM1pZbkiUoNST/preview"></iframe>
-                    </div>
-                </div>
-
-                <div class="file-card">
-                    <div class="file-info">
-                        <span class="file-tag">語言能力</span>
-                        <strong>GEPT 全民英檢中級證書</strong>
-                        <p>通過 CEFR B1+ 等級。體現了我長期接觸西洋流行文化與美劇所累積的實質競爭力。</p>
-                    </div>
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1SGl64DLPmk5AkTKvvNQlnf41Jf-MxOnD/preview"></iframe>
-                    </div>
-                </div>
-
-                <div class="file-card">
-                    <div class="file-info">
-                        <span class="file-tag">團隊合作</span>
-                        <strong>英語話劇比賽心得</strong>
-                        <p>負責舞台視覺與團隊物資調度，在壓力下學習跨部門協作與創意思考，展現極佳的團隊融入感。</p>
-                    </div>
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1y5-a2NgPKbG3eOLCQcS1M5VQVlkla69G/preview"></iframe>
-                    </div>
-                </div>
-
             </div>
         </section>
 
-        <!-- 幹部經歷 -->
         <section class="section-block" id="leader">
-            <h2 class="section-title">幹部經歷</h2>
+            <h2 class="section-title">領導與公共事務經歷</h2>
             <div class="exp-list">
                 <div class="exp-card">
-                    <span class="exp-year">113 學年度</span>
+                    <span class="exp-year">2024</span>
                     <div class="exp-title">西洋棋社 專題長</div>
-                    <p>策劃每週棋藝研討與競賽，設計創新對弈環節，有效提升社員的邏輯思維與參與熱度。</p>
+                    <p>策劃棋藝研討與競賽，設計創新對弈環節，提升團隊邏輯競爭力。</p>
                 </div>
                 <div class="exp-card">
-                    <span class="exp-year">114 學年度</span>
+                    <span class="exp-year">2025</span>
                     <div class="exp-title">班級 環保股長</div>
-                    <p>落實環境永續管理，制定高效的回收分類流程，展現對公共服務的責任感與細緻執行力。</p>
+                    <p>落實環境永續管理，制定高效分類流程，展現公共責任感。</p>
                 </div>
             </div>
         </section>
 
-        <!-- 學習歷程 -->
         <section class="section-block" id="study">
-            <h2 class="section-title">課程學習成果</h2>
+            <h2 class="section-title">課程學習成果報告</h2>
             <div class="preview-container">
                 
-                <!-- Matlab 檔案 -->
                 <div class="file-card">
                     <div class="file-info">
-                        <span class="file-tag">技術實作</span>
-                        <strong>Matlab 修課紀錄</strong>
-                        <p>掌握工程數學計算與資料視覺化，透過 Matlab 進行演算法開發與訊號分析，展現強大的數據處理能力與跨學科應用潛力。</p>
-                    </div>
-                    <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1Xepxwt2iQypzArAVFotQPk_E3em3qJ3s/preview"></iframe>
-                    </div>
-                </div>
-
-                <!-- 物理探究 檔案 -->
-                <div class="file-card">
-                    <div class="file-info">
-                        <span class="file-tag">自然科學</span>
-                        <strong>物理探究與實作實驗報告</strong>
-                        <p>針對物理現象進行系統性觀測與實驗驗證。透過嚴謹的數據收集與科學分析，培養對未知現象的洞察力與實證精神。</p>
+                        <span class="file-tag">物理實作</span>
+                        <strong>物理探究與實作成果</strong>
+                        <ul>
+                            <li><strong>科學探究</strong> 具備觀察現象、提出假設並設計實驗的完整科學素養。</li>
+                            <li><strong>數據分析</strong> 精確紀錄實驗數據，並能進行嚴謹的誤差分析。</li>
+                            <li><strong>實作能力</strong> 動手驗證物理定律，將理論與實驗數據高度對接。</li>
+                        </ul>
                     </div>
                     <div class="file-iframe-wrapper">
                         <iframe class="file-iframe" src="https://drive.google.com/file/d/1Z6hAd1iF3oPTmsvyQzqzSrKZrRl-tGRP/preview"></iframe>
                     </div>
                 </div>
 
-                <!-- Python 檔案 -->
                 <div class="file-card">
                     <div class="file-info">
-                        <span class="file-tag">資訊工程</span>
+                        <span class="file-tag">工程計算</span>
+                        <strong>Matlab 修課紀錄</strong>
+                        <ul>
+                            <li><strong>工程運算</strong> 運用 Matlab 進行數學建模與複雜演算。</li>
+                            <li><strong>數據視覺化</strong> 將數據轉化為直觀圖表，支持科學分析。</li>
+                            <li><strong>精密分析</strong> 展現嚴謹的數理邏輯與軟體操作能力。</li>
+                        </ul>
+                    </div>
+                    <div class="file-iframe-wrapper">
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1Xepxwt2iQypzArAVFotQPk_E3em3qJ3s/preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="file-card">
+                    <div class="file-info">
+                        <span class="file-tag">程式開發</span>
                         <strong>Python 學習與實作紀錄</strong>
-                        <p>熟悉 Python 語法結構、流程控制與函式庫應用。從邏輯演練到實作開發，展現資訊素養與利用科技解決問題的能力。</p>
+                        <ul>
+                            <li><strong>程式思維</strong> 精通核心邏輯，具備自動化腳本編寫能力。</li>
+                            <li><strong>模組開發</strong> 掌握函式與流程控制，優化開發流程。</li>
+                            <li><strong>實務應用</strong> 利用程式語言解決具體問題，達成技術落地。</li>
+                        </ul>
                     </div>
                     <div class="file-iframe-wrapper">
                         <iframe class="file-iframe" src="https://drive.google.com/file/d/1J9baWPE6UCpoOm1i4jSFyJaH1Me08XCk/preview"></iframe>
                     </div>
                 </div>
-
             </div>
         </section>
 
     </div>
 
     <footer>
-        <p>SYSTEM STATUS: ONLINE | © 2024 許家瑋 E-PORTFOLIO NAVIGATION</p>
+        <p>ACADEMIC ARCHIVE | © 2026 HSU CHIA WEI | PROFILE UPDATED</p>
     </footer>
 
     <script>
@@ -456,29 +536,6 @@
                 behavior: 'smooth'
             });
         }
-
-        window.addEventListener('scroll', () => {
-            const sections = ['top', 'extra', 'leader', 'study'];
-            const navButtons = document.querySelectorAll('.nav-btn');
-            
-            let current = '';
-            sections.forEach(section => {
-                const element = document.getElementById(section);
-                if (element) {
-                    const sectionTop = element.offsetTop;
-                    if (pageYOffset >= sectionTop - 150) {
-                        current = section;
-                    }
-                }
-            });
-
-            navButtons.forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('onclick').includes(current)) {
-                    btn.classList.add('active');
-                }
-            });
-        });
     </script>
 
 </body>
