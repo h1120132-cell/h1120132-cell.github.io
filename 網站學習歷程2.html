@@ -72,7 +72,7 @@
         .avatar-box { 
             width: 240px; 
             height: 320px; 
-            background: #000; /* 背景設為黑以防萬一，但會被填滿 */
+            background: #000; 
             border-radius: 12px; 
             overflow: hidden; 
             border: 4px solid #fff;
@@ -80,12 +80,11 @@
             position: relative;
         }
         
-        /* 調整 iframe 填滿容器並稍微放大以消除 Google Drive 的黑色邊框邊緣 */
         .avatar-box iframe { 
             width: 100%; 
             height: 100%; 
             border: none; 
-            transform: scale(1.05); /* 輕微放大以裁切邊緣黑邊 */
+            transform: scale(1.05); 
             object-fit: cover;
         }
 
@@ -266,7 +265,6 @@
         <div class="academic-card">
             <div class="avatar-section">
                 <div class="avatar-box">
-                    <!-- 使用 iframe 嵌入 Google Drive 圖片，並調整容器樣式以填滿並裁切邊緣 -->
                     <iframe src="https://drive.google.com/file/d/1jcaXHINO3DiMdMVbgmGsZLl8tG_mtFnU/preview"></iframe>
                 </div>
                 <div class="contact-info-mini">
@@ -310,7 +308,7 @@
             <h2 class="section-title">多元表現成果庫</h2>
             <div class="preview-container">
 
-                <!-- 順序 1: 小論文 -->
+                <!-- 順序 1: 小論文系列 -->
                 <div class="file-card">
                     <div class="file-info">
                         <span class="file-tag">資訊安全</span>
@@ -326,6 +324,8 @@
                     </div>
                 </div>
 
+                <!-- 已移除圓周率小論文區塊 -->
+
                 <!-- 順序 2: AIOT -->
                 <div class="file-card">
                     <div class="file-info">
@@ -338,7 +338,7 @@
                         </ul>
                     </div>
                     <div class="file-iframe-wrapper">
-                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1NvELUHJAf_dY4_N7vw8UHx7n8O_ih4tU/preview"></iframe>
+                        <iframe class="file-iframe" src="https://drive.google.com/file/d/1vh4pWnQ8ifks3bqE_gSmSNgQ8lPyMXBO/preview"></iframe>
                     </div>
                 </div>
 
@@ -377,7 +377,7 @@
                         <span class="file-tag">檢定證照</span>
                         <strong>英語能力檢定成果</strong>
                         <ul>
-                            <li><strong>標準化評量</strong> 通過國際認可之語言檢定，量化外語實力。</li>
+                            <li><strong>標準化評量</strong> 通過國際認認可之語言檢定，量化外語實力。</li>
                             <li><strong>持續精進</strong> 展現對語言學習的恆毅力與系統化準備。</li>
                             <li><strong>競爭優勢</strong> 具備閱讀專業原文文獻的基本語言門檻。</li>
                         </ul>
@@ -461,7 +461,8 @@
                 <div class="exp-card">
                     <span class="exp-year">2024</span>
                     <div class="exp-title">西洋棋社 專題長</div>
-                    <p>策劃棋藝研討與競賽，設計創新對弈環節，提升團隊邏輯競爭力。</p>
+                    <p>策劃棋藝研討與競賽，設計創新對弈環節。下圖為其中一週之專題海報成果展示。</p>
+                    <iframe class="exp-iframe-mini" src="https://drive.google.com/file/d/1gpKKhnl_CYNrsl6WYmeuaHXYb-sZb0lq/preview"></iframe>
                 </div>
                 <div class="exp-card">
                     <span class="exp-year">2025</span>
@@ -526,7 +527,7 @@
     </div>
 
     <footer>
-        <p>ACADEMIC ARCHIVE | © 2024 SHIU CHIA WEI | PORTFOLIO UPDATED</p>
+        <p>ACADEMIC ARCHIVE | © 2026 HSU CHIA WEI | PROFILE UPDATED</p>
     </footer>
 
     <script>
