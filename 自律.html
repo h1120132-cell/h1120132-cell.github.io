@@ -9,6 +9,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <style>
+    /* 嚴格鎖定畫面，防止偏移 */
     html, body {
       overflow-x: hidden;
       overscroll-behavior-x: none;
@@ -22,10 +23,8 @@
     ::selection { background: #dc2626; color: white; }
     ::-webkit-scrollbar { width: 0px; background: transparent; }
     
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      opacity: 0.2;
-    }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.2; }
+    input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.2; }
 
     .brutal-border {
       border: 1px solid #27272a;
@@ -41,37 +40,34 @@
     <span id="toast-message" class="text-xs uppercase tracking-widest"></span>
   </div>
 
-  <!-- 每月餐食費詢問視窗 (Monthly Allowance Modal) -->
+  <!-- 每月餐食費詢問視窗 -->
   <div id="allowance-modal" class="hidden fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-sm bg-black border-2 border-red-600 p-6 flex flex-col items-center text-center shadow-[0_0_30px_rgba(220,38,38,0.2)]">
       <i data-lucide="moon" class="w-8 h-8 text-red-600 mb-4 animate-pulse"></i>
       <h2 class="text-xl font-black text-white tracking-[0.3em] uppercase mb-2">New Month</h2>
-      <p class="text-xs text-zinc-400 font-bold tracking-widest mb-6">是否要匯入本月的餐食費 / 零用錢？</p>
-      
-      <input id="allowance-amount" type="number" placeholder="Enter Amount ($)" class="w-full bg-transparent border-b-2 border-zinc-700 focus:border-red-600 text-center text-2xl font-black text-white focus:outline-none pb-2 mb-8 placeholder-zinc-800">
-      
+      <p class="text-xs text-zinc-400 font-bold tracking-widest mb-6">是否匯入本月餐食費/零用錢？</p>
+      <input id="allowance-amount" type="number" placeholder="Amount ($)" class="w-full bg-transparent border-b-2 border-zinc-700 focus:border-red-600 text-center text-2xl font-black text-white focus:outline-none pb-2 mb-8 placeholder-zinc-800">
       <div class="flex w-full gap-3">
-        <button onclick="skipAllowance()" class="flex-1 border border-zinc-700 text-zinc-500 text-[10px] font-black tracking-widest py-3 hover:bg-zinc-900 transition-colors uppercase">
-          Skip
-        </button>
-        <button onclick="addAllowance()" class="flex-1 bg-red-600 text-white text-[10px] font-black tracking-widest py-3 hover:bg-red-500 transition-colors uppercase shadow-[0_0_15px_rgba(220,38,38,0.4)]">
-          Confirm
-        </button>
+        <button onclick="skipAllowance()" class="flex-1 border border-zinc-700 text-zinc-500 text-[10px] font-black tracking-widest py-3 hover:bg-zinc-900 transition-colors uppercase">Skip</button>
+        <button onclick="addAllowance()" class="flex-1 bg-red-600 text-white text-[10px] font-black tracking-widest py-3 hover:bg-red-500 transition-colors uppercase shadow-[0_0_15px_rgba(220,38,38,0.4)]">Confirm</button>
       </div>
     </div>
   </div>
 
   <!-- 筆記放大詳細視窗 (Modal) -->
   <div id="note-modal" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-    <div class="w-full max-w-sm bg-black brutal-border relative flex flex-col max-h-[85vh]">
-      <button onclick="closeNoteModal()" class="absolute top-3 right-3 text-zinc-500 hover:text-white z-10 bg-black/50 p-1">
+    <div class="w-full max-w-sm bg-black brutal-border relative flex flex-col h-[85vh]">
+      <button onclick="closeNoteModal()" class="absolute top-3 right-3 text-zinc-500 hover:text-white z-20 bg-black p-1 brutal-border">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
-      <div id="modal-img-container" class="w-full bg-zinc-950 flex justify-center border-b border-zinc-800 hidden">
-        <img id="modal-img" src="" alt="Note Media" class="max-h-[50vh] object-contain w-full grayscale opacity-80">
-      </div>
-      <div class="p-6 overflow-y-auto">
-        <div class="text-[10px] font-black text-red-600 tracking-widest mb-4 uppercase" id="modal-date"></div>
+      
+      <div id="modal-media-container" class="w-full flex-1 bg-zinc-950 flex justify-center border-b border-zinc-800 overflow-hidden relative"></div>
+      
+      <div class="p-6 h-[30%] overflow-y-auto bg-black">
+        <div class="flex justify-between items-center mb-4">
+          <div class="text-[10px] font-black text-red-600 tracking-widest uppercase" id="modal-date"></div>
+          <div class="text-[9px] font-black text-zinc-500 tracking-widest uppercase border border-zinc-800 px-2 py-0.5" id="modal-category"></div>
+        </div>
         <p class="text-sm text-zinc-200 leading-relaxed font-medium tracking-wide whitespace-pre-wrap" id="modal-text"></p>
       </div>
     </div>
@@ -88,9 +84,7 @@
         <h1 class="text-4xl font-black text-white tracking-[0.4em] uppercase mb-1">
           eviljordan<span class="text-red-600">.</span>
         </h1>
-        <p class="text-zinc-500 font-bold tracking-[0.5em] text-[10px] mt-2 border-b border-zinc-800 pb-2">
-          XO / VAMP
-        </p>
+        <p class="text-zinc-500 font-bold tracking-[0.5em] text-[10px] mt-2 border-b border-zinc-800 pb-2">XO / VAMP</p>
       </div>
       <div class="absolute bottom-12 text-zinc-600 text-[9px] tracking-[0.4em] font-bold animate-pulse">TAP TO INITIALIZE</div>
     </div>
@@ -114,7 +108,6 @@
         <div id="topbar-expenses" class="topbar-content hidden">
           <p class="text-zinc-500 text-[9px] font-black tracking-[0.3em] mb-1">MODULE // FINANCE</p>
           <h1 class="text-2xl font-black text-white tracking-widest uppercase mb-4">Capital</h1>
-          
           <div class="bg-black brutal-border p-4">
             <div class="flex justify-between items-center mb-3">
               <span class="text-zinc-500 font-black tracking-[0.2em] text-[9px]">BASE FUNDS</span>
@@ -132,8 +125,8 @@
                 <p id="remaining-display" class="text-3xl font-black tracking-tight text-white"></p>
               </div>
               <div class="text-right">
-                <p class="text-[9px] font-black text-zinc-600 mb-0.5 tracking-[0.2em]">TOTAL IN <span class="text-green-500" id="total-income-display"></span></p>
-                <p class="text-[9px] font-black text-zinc-600 tracking-[0.2em]">TOTAL OUT <span class="text-red-500" id="total-spent-display"></span></p>
+                <p class="text-[9px] font-black text-zinc-600 mb-0.5 tracking-[0.2em]">IN <span class="text-green-500" id="total-income-display"></span></p>
+                <p class="text-[9px] font-black text-zinc-600 tracking-[0.2em]">OUT <span class="text-red-500" id="total-spent-display"></span></p>
               </div>
             </div>
           </div>
@@ -145,25 +138,20 @@
           <h1 class="text-2xl font-black text-white tracking-widest uppercase">Metrics</h1>
         </div>
 
-        <!-- 理財 Topbar -->
+        <!-- 理財與筆記 Topbar -->
         <div id="topbar-investment" class="topbar-content hidden">
           <p class="text-zinc-500 text-[9px] font-black tracking-[0.3em] mb-1">MODULE // NOTES</p>
-          <h1 class="text-2xl font-black text-white tracking-widest uppercase">Knowledge</h1>
+          <div class="flex justify-between items-end">
+            <h1 class="text-2xl font-black text-white tracking-widest uppercase">Vault</h1>
+          </div>
         </div>
-
-        <!-- 課程 Topbar -->
-        <div id="topbar-courses" class="topbar-content hidden">
-          <p class="text-zinc-500 text-[9px] font-black tracking-[0.3em] mb-1">MODULE // FUTURE</p>
-          <h1 class="text-2xl font-black text-white tracking-widest uppercase">Blueprint</h1>
-        </div>
-      </div>
+      </div> <!-- 狀態欄容器結束 (修復了格式跑掉的問題點) -->
 
       <!-- 主要內容區 -->
       <div class="flex-1 overflow-y-auto p-5 pb-28 bg-black">
         
         <!-- 任務 Tab -->
         <div id="tab-tasks" class="tab-content hidden space-y-8">
-          
           <div>
             <h2 class="text-[10px] font-black text-red-600 mb-3 tracking-[0.2em] border-l-2 border-red-600 pl-2">COUNTDOWNS</h2>
             <form onsubmit="addCountdown(event)" class="flex gap-2 mb-4 bg-black brutal-border p-2">
@@ -207,106 +195,147 @@
               <span id="expense-limit-display" class="text-[9px] text-zinc-600 font-bold tracking-widest"></span>
             </div>
 
-            <!-- 切換 進帳 / 花費 -->
             <div class="flex gap-2 mb-2">
-              <button type="button" id="btn-type-expense" onclick="setTxType('expense')" class="flex-1 border border-white bg-white text-black text-[10px] font-black py-2 tracking-widest uppercase transition-all">Expense (花費)</button>
-              <button type="button" id="btn-type-income" onclick="setTxType('income')" class="flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all">Income (進帳)</button>
+              <button type="button" id="btn-type-expense" onclick="setTxType('expense')" class="flex-1 border border-white bg-white text-black text-[10px] font-black py-2 tracking-widest uppercase transition-all">Expense</button>
+              <button type="button" id="btn-type-income" onclick="setTxType('income')" class="flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all">Income</button>
             </div>
 
-            <!-- 鎖定警告 UI -->
             <div id="expense-lock-warning" class="hidden bg-red-950/20 border border-red-600 p-3">
               <div class="text-[10px] text-zinc-300 tracking-wide uppercase">
                 <strong class="text-red-500 font-black"><span id="lock-warning-cat"></span> is LOCKED</strong><br />
-                Limit exceeded (30% of total funds).<br/>
+                Limit exceeded (30%).<br/>
                 <span class="text-zinc-500">Unlocks: <span id="lock-warning-date"></span></span>
               </div>
             </div>
 
             <div class="flex gap-2">
               <input id="exp-date" type="date" class="exp-input w-32 bg-transparent px-2 py-1.5 border border-zinc-800 text-xs text-zinc-300 focus:outline-none focus:border-white rounded-none" required>
-              <select id="exp-cat" onchange="checkCategoryLock()" class="exp-input flex-1 bg-transparent px-2 py-1.5 border border-zinc-800 text-xs text-white font-black tracking-widest uppercase focus:outline-none focus:border-white rounded-none">
-                <!-- 選項由 JS 動態生成 -->
-              </select>
+              <select id="exp-cat" onchange="checkCategoryLock()" class="exp-input flex-1 bg-transparent px-2 py-1.5 border border-zinc-800 text-xs text-white font-black tracking-widest uppercase focus:outline-none focus:border-white rounded-none"></select>
             </div>
             <div class="flex gap-2">
-              <input id="exp-desc" type="text" placeholder="Detail (e.g. 遊戲課金)" class="exp-input flex-1 bg-transparent px-3 py-2 border border-zinc-800 placeholder-zinc-700 text-white focus:outline-none focus:border-white text-xs rounded-none font-bold" required>
+              <input id="exp-desc" type="text" placeholder="Detail" class="exp-input flex-1 bg-transparent px-3 py-2 border border-zinc-800 placeholder-zinc-700 text-white focus:outline-none focus:border-white text-xs rounded-none font-bold" required>
               <input id="exp-amount" type="number" placeholder="$0" class="exp-input w-24 bg-transparent px-3 py-2 border border-zinc-800 placeholder-zinc-700 text-white focus:outline-none focus:border-white text-xs rounded-none font-bold" required>
             </div>
-            <button id="exp-submit-btn" type="submit" class="w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase">
-              Confirm
-            </button>
+            <button id="exp-submit-btn" type="submit" class="w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase">Confirm</button>
           </form>
 
           <div id="expenses-list" class="space-y-2"></div>
         </div>
 
-        <!-- 健身 Tab -->
+        <!-- 健身 Tab (大改版 - 身體數據日誌 & 硬核訓練紀錄) -->
         <div id="tab-fitness" class="tab-content hidden space-y-6">
+          
+          <!-- 身體數據日誌 -->
           <div class="bg-black brutal-border p-4">
-            <h3 class="text-[9px] font-black text-zinc-500 w-full mb-3 tracking-[0.3em] uppercase">Physical Status</h3>
-            <div class="flex w-full gap-4 items-center">
-              <div class="flex-1 space-y-2">
-                <div class="flex items-center bg-transparent border border-zinc-800 px-3 py-1.5">
-                  <span class="text-[9px] font-black text-zinc-600 w-8 tracking-widest">H(CM)</span>
-                  <input id="bmi-h" oninput="updateBMI()" type="number" placeholder="--" class="flex-1 bg-transparent focus:outline-none text-white text-xs font-bold text-right">
-                </div>
-                <div class="flex items-center bg-transparent border border-zinc-800 px-3 py-1.5">
-                  <span class="text-[9px] font-black text-zinc-600 w-8 tracking-widest">W(KG)</span>
-                  <input id="bmi-w" oninput="updateBMI()" type="number" placeholder="--" class="flex-1 bg-transparent focus:outline-none text-white text-xs font-bold text-right">
-                </div>
-              </div>
-              <div class="w-16 h-16 border border-zinc-800 flex flex-col items-center justify-center flex-shrink-0 bg-transparent">
-                <span class="text-[8px] text-red-600 font-black tracking-[0.2em]">BMI</span>
-                <span id="bmi-display" class="text-lg font-black text-white mt-0.5">--</span>
-              </div>
-            </div>
+            <h3 class="text-[9px] font-black text-zinc-500 mb-3 tracking-[0.3em] uppercase">Body Metrics Log</h3>
+            <form onsubmit="addBodyMetric(event)" class="flex flex-col gap-2">
+               <div class="flex gap-2">
+                 <input id="metric-date" type="date" class="w-28 bg-transparent border border-zinc-800 px-2 py-1 text-[10px] text-white focus:border-white focus:outline-none rounded-none font-bold tracking-widest" required>
+                 <input id="metric-h" type="number" placeholder="H(cm)" step="0.1" class="flex-1 bg-transparent border border-zinc-800 px-2 py-1 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold" required>
+                 <input id="metric-w" type="number" placeholder="W(kg)" step="0.1" class="flex-1 bg-transparent border border-zinc-800 px-2 py-1 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold" required>
+                 <button type="submit" class="bg-white text-black px-3 font-black text-[9px] tracking-[0.2em] uppercase hover:bg-zinc-300">Log</button>
+               </div>
+            </form>
+            <div id="metrics-list" class="space-y-2 mt-4 max-h-40 overflow-y-auto border-t border-zinc-900 pt-3 pr-1"></div>
           </div>
-          <div class="text-[9px] font-black text-zinc-600 tracking-[0.2em] text-center border-b border-zinc-900 pb-2">AUTO RESETS EVERY MONDAY</div>
-          <div id="fitness-list" class="space-y-2"></div>
+
+          <!-- 每日訓練目標 (週重置) -->
+          <div>
+            <div class="text-[9px] font-black text-zinc-600 tracking-[0.2em] text-center border-b border-zinc-900 pb-2 mt-4 mb-3">WEEKLY ROUTINE (RESETS MON)</div>
+            <div id="fitness-list" class="space-y-2"></div>
+          </div>
+
+          <!-- 硬核訓練日誌 -->
+          <div class="bg-black brutal-border p-4 mt-6">
+            <h3 class="text-[9px] font-black text-red-600 mb-3 tracking-[0.3em] uppercase border-l-2 border-red-600 pl-2">Workout Log</h3>
+            <form onsubmit="addWorkout(event)" class="flex flex-col gap-2">
+               <div class="flex gap-2">
+                 <input id="wo-date" type="date" class="w-28 bg-transparent border border-zinc-800 px-2 py-1.5 text-[10px] text-white focus:border-white focus:outline-none rounded-none font-bold tracking-widest" required>
+                 <select id="wo-exercise-select" onchange="toggleCustomExercise()" class="flex-1 bg-transparent border border-zinc-800 px-2 py-1.5 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold uppercase tracking-wider">
+                    <!-- JS 動態寫入 -->
+                 </select>
+               </div>
+               <input id="wo-exercise-custom" type="text" placeholder="Custom exercise..." class="hidden w-full bg-transparent border border-zinc-800 px-3 py-1.5 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold uppercase tracking-wider">
+               <div class="flex gap-2">
+                 <div class="flex-1 flex items-center border border-zinc-800 px-2 bg-zinc-950">
+                   <input id="wo-sets" type="number" placeholder="0" class="w-full bg-transparent text-sm text-white focus:outline-none py-1.5 text-center font-black" required>
+                   <span class="text-[8px] text-zinc-500 font-black tracking-[0.2em] ml-1">SETS</span>
+                 </div>
+                 <div class="flex-1 flex items-center border border-zinc-800 px-2 bg-zinc-950">
+                   <input id="wo-reps" type="number" placeholder="0" class="w-full bg-transparent text-sm text-white focus:outline-none py-1.5 text-center font-black" required>
+                   <span class="text-[8px] text-zinc-500 font-black tracking-[0.2em] ml-1">REPS</span>
+                 </div>
+                 <button type="submit" class="bg-red-600 text-white px-4 font-black text-[10px] tracking-[0.2em] uppercase hover:bg-red-500">Add</button>
+               </div>
+            </form>
+            <div id="workouts-list" class="space-y-2 mt-4 pt-3 border-t border-zinc-900"></div>
+          </div>
         </div>
 
-        <!-- 理財 Tab -->
+        <!-- 筆記與理財庫 Tab -->
         <div id="tab-investment" class="tab-content hidden space-y-4">
           <form onsubmit="addNote(event)" class="bg-black brutal-border p-4 space-y-4">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-               <span class="text-[10px] font-black text-white tracking-[0.2em] uppercase">Add Entry</span>
+               <span class="text-[10px] font-black text-white tracking-[0.2em] uppercase">Add Note</span>
                <input id="note-date" type="date" class="bg-transparent text-[10px] tracking-widest text-zinc-500 font-bold focus:outline-none" required>
             </div>
             
-            <textarea id="note-text" placeholder="Key takeaways..." rows="3" class="w-full bg-transparent px-3 py-2 border border-zinc-800 focus:outline-none focus:border-white text-sm text-white placeholder-zinc-700 resize-none font-medium"></textarea>
+            <div class="flex gap-2">
+              <select id="note-cat-select" class="w-32 bg-transparent border border-zinc-800 text-[10px] text-zinc-300 font-black tracking-widest uppercase focus:outline-none p-1.5"></select>
+              <input id="note-new-cat" type="text" placeholder="+ New Cat" class="flex-1 bg-transparent border border-zinc-800 text-[10px] text-white px-2 focus:outline-none placeholder-zinc-700 uppercase font-bold tracking-widest">
+            </div>
+            
+            <textarea id="note-text" placeholder="Details..." rows="3" class="w-full bg-transparent px-3 py-2 border border-zinc-800 focus:outline-none focus:border-white text-sm text-white placeholder-zinc-700 resize-none font-medium"></textarea>
 
-            <div id="note-img-preview-container" class="relative hidden mt-2">
-              <img id="note-img-preview" src="" alt="preview" class="w-full h-24 object-cover border border-zinc-800 grayscale opacity-80">
-              <button type="button" onclick="clearNoteImage()" class="absolute top-1 right-1 bg-black p-1 text-zinc-400 hover:text-white border border-zinc-800">
+            <div id="note-media-preview-container" class="relative hidden mt-2 bg-zinc-950 border border-zinc-800 h-24 flex items-center justify-center overflow-hidden">
+              <span id="note-media-indicator" class="text-xs font-black tracking-widest text-zinc-500"></span>
+              <button type="button" onclick="clearNoteMedia()" class="absolute top-1 right-1 bg-black p-1 text-zinc-400 hover:text-white border border-zinc-800 z-10">
                 <i data-lucide="x" class="w-3 h-3"></i>
               </button>
             </div>
 
             <div class="flex gap-2">
-              <label class="flex-1 bg-transparent border border-zinc-800 text-zinc-400 text-[10px] font-black tracking-widest py-2 flex items-center justify-center cursor-pointer hover:bg-zinc-900 hover:text-white transition-colors uppercase">
-                <i data-lucide="camera" class="w-3 h-3 mr-2"></i> Media
-                <input id="note-file" type="file" accept="image/*" onchange="handleImageUpload(event)" class="hidden">
+              <label class="flex-1 bg-transparent border border-zinc-800 text-zinc-400 text-[9px] font-black tracking-[0.1em] py-2 flex items-center justify-center cursor-pointer hover:bg-zinc-900 hover:text-white transition-colors uppercase">
+                <i data-lucide="paperclip" class="w-3 h-3 mr-2"></i> PDF / IMG
+                <input id="note-file" type="file" accept="image/*, application/pdf" onchange="handleMediaUpload(event)" class="hidden">
               </label>
               <button type="submit" class="flex-1 bg-white text-black text-[10px] font-black tracking-[0.2em] py-2 hover:bg-zinc-300 transition-all uppercase">
                 Save
               </button>
             </div>
+            <p class="text-[8px] text-zinc-600 tracking-widest text-center mt-1">GoodNotes 檔案請匯出為 PDF 上傳 (建議壓縮)</p>
           </form>
 
-          <div id="notes-list" class="grid grid-cols-2 gap-3 pt-2"></div>
+          <!-- 筆記庫視圖: 資料夾模式 -->
+          <div id="notes-folder-view" class="grid grid-cols-2 gap-3 pt-2"></div>
+          
+          <!-- 筆記庫視圖: 列表模式 -->
+          <div id="notes-list-view" class="hidden flex-col gap-3 pt-2">
+            <div class="flex items-center gap-3 mb-2 border-b border-zinc-900 pb-2">
+               <button onclick="closeFolder()" class="text-zinc-500 hover:text-white"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+               <h3 id="current-folder-name" class="text-xs font-black text-white tracking-widest uppercase"></h3>
+            </div>
+            <div id="notes-list-content" class="grid grid-cols-2 gap-3"></div>
+          </div>
+
+          <!-- 系統資料備份與還原 -->
+          <div class="mt-8 pt-4 border-t border-zinc-900 text-center">
+            <span class="text-[8px] text-zinc-600 tracking-widest uppercase block mb-3">System Data Management</span>
+            <div class="flex justify-center gap-3">
+              <button onclick="exportData()" class="flex items-center justify-center gap-1 text-[9px] border border-zinc-800 px-4 py-1.5 text-zinc-400 hover:text-white uppercase tracking-widest transition-colors"><i data-lucide="download" class="w-3 h-3"></i> Backup</button>
+              <label class="flex items-center justify-center gap-1 text-[9px] border border-zinc-800 px-4 py-1.5 text-zinc-400 hover:text-white uppercase tracking-widest cursor-pointer transition-colors">
+                <i data-lucide="upload" class="w-3 h-3"></i> Restore <input type="file" accept=".json" onchange="importData(event)" class="hidden">
+              </label>
+            </div>
+          </div>
         </div>
 
-        <!-- 課程 Tab -->
-        <div id="tab-courses" class="tab-content hidden h-full flex flex-col items-center justify-center text-center pt-20">
-          <h2 class="text-xs font-black text-zinc-600 tracking-[0.4em] uppercase">Under Construction</h2>
-          <span class="inline-block border border-zinc-800 px-3 py-1 text-[9px] text-zinc-500 font-black tracking-[0.3em] mt-4">COMING SOON</span>
-        </div>
-
-      </div>
+      </div> <!-- 主要內容區結束 -->
 
       <!-- 底部導覽列 -->
       <div class="absolute bottom-0 left-0 right-0 bg-black border-t border-zinc-900 pb-safe z-20">
         <div class="flex justify-around items-center h-16 px-2">
+          <!-- 四個主按鈕，拔除未來藍圖 -->
           <button onclick="switchTab('tasks')" data-tab="tasks" class="nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-white">
             <i data-lucide="crosshair" class="w-5 h-5 mb-1"></i>
             <span class="text-[8px] font-bold tracking-[0.1em]">TASKS</span>
@@ -323,86 +352,107 @@
             <i data-lucide="align-left" class="w-5 h-5 mb-1"></i>
             <span class="text-[8px] font-bold tracking-[0.1em]">NOTES</span>
           </button>
-          <button onclick="switchTab('courses')" data-tab="courses" class="nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-zinc-700 hover:text-zinc-400">
-            <i data-lucide="box" class="w-5 h-5 mb-1"></i>
-            <span class="text-[8px] font-bold tracking-[0.1em]">FUTURE</span>
-          </button>
         </div>
       </div>
-    </div>
+    </div> <!-- main-app 結束 -->
   </div>
 
   <script>
     // ================= 全域狀態管理與 LocalStorage =================
     const todayStr = new Date().toLocaleDateString('en-CA');
-    const currentMonthStr = todayStr.slice(0, 7); // 'YYYY-MM'
+    const currentMonthStr = todayStr.slice(0, 7); 
     
-    // 使用新 key (v5) 確保進帳功能等結構更新不會壞掉
-    const STORAGE_KEY = 'vamp_xo_app_data_v5'; 
+    // 使用新 key (v8)
+    const STORAGE_KEY = 'vamp_xo_app_data_v8'; 
     
     const defaultState = {
       activeTab: 'tasks',
       baseBalance: 5000,
-      bmiHeight: '',
-      bmiWeight: '',
       tasks: [{ id: 1, text: 'Clean room', completed: false }],
       countdowns: [],
       monthlyTasks: [], 
-      transactions: [], // 存放所有進帳與花費 {id, type, desc, amount, category, date}
+      transactions: [], 
       lockedCategories: {},
       lastFitnessReset: '', 
-      lastAllowancePromptMonth: '', // 紀錄是否已經問過餐食費
+      bodyMetrics: [], 
       weeklyFitness: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day, idx) => ({
-        id: idx, day: day, goal: '', date: todayStr, calories: '', completed: false
+        id: idx, day: day, goal: '', completed: false
       })),
-      learningNotes: [],
-      currentUploadedImage: null
+      workouts: [], 
+      lastAllowancePromptMonth: '', 
+      noteCategories: ['一般筆記', '投資理財', '大學課程'], 
+      learningNotes: [], 
+      currentUploadedMedia: null
     };
 
     let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultState;
-    state.currentUploadedImage = null;
-    let txType = 'expense'; // 'expense' or 'income'
+    state.currentUploadedMedia = null; 
+    let txType = 'expense'; 
+    let currentFolder = null; 
 
-    function saveData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+    const predefinedExercises = [
+      '伏地挺身 (Push-ups)', '仰臥起坐 (Sit-ups)', '深蹲 (Squats)', '引體向上 (Pull-ups)', 
+      '棒式 (Plank)', '啞鈴彎舉 (Dumbbell Curls)', '硬舉 (Deadlifts)', '臥推 (Bench Press)', 
+      '肩推 (Overhead Press)', '划船 (Rows)', '弓箭步 (Lunges)', '自訂 (Custom...)'
+    ];
 
     const expenseCategories = [
-      { name: '飲食', color: '#ffffff' }, // 白
-      { name: '交通', color: '#a1a1aa' }, // 灰
-      { name: '娛樂', color: '#dc2626' }, // 紅
-      { name: '學習', color: '#52525b' }, // 深灰
-      { name: '其他', color: '#27272a' }  // 極暗灰
+      { name: '飲食', color: '#ffffff' }, { name: '交通', color: '#a1a1aa' }, 
+      { name: '娛樂', color: '#dc2626' }, { name: '學習', color: '#52525b' }, { name: '其他', color: '#27272a' }
     ];
+    const incomeCategories = [{ name: '餐食費' }, { name: '零用錢' }, { name: '薪水' }, { name: '其他' }];
 
-    const incomeCategories = [
-      { name: '餐食費' }, { name: '零用錢' }, { name: '薪水' }, { name: '其他' }
-    ];
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    // 資料備份與還原功能
+    function exportData() {
+      const dataStr = JSON.stringify(state);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `VAMP_XO_BACKUP_${new Date().toLocaleDateString('en-CA')}.json`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      showToast("DATA EXPORTED");
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedState = JSON.parse(e.target.result);
+          if (importedState && importedState.activeTab !== undefined) {
+            state = importedState; saveData();
+            showToast("DATA RESTORED. RELOADING...");
+            setTimeout(() => location.reload(), 1500);
+          } else { alert("Invalid backup file format."); }
+        } catch (err) { alert("Failed to read backup file."); }
+      };
+      reader.readAsText(file);
+    }
 
     document.getElementById('new-cd-date').value = todayStr;
     document.getElementById('exp-date').value = todayStr;
+    document.getElementById('wo-date').value = todayStr;
     document.getElementById('note-date').value = todayStr;
-    if(state.bmiHeight) document.getElementById('bmi-h').value = state.bmiHeight;
-    if(state.bmiWeight) document.getElementById('bmi-w').value = state.bmiWeight;
+    document.getElementById('metric-date').value = todayStr;
+
+    document.getElementById('wo-exercise-select').innerHTML = predefinedExercises.map(ex => `<option value="${ex}" class="bg-black">${ex}</option>`).join('');
 
     // ================= 初始化與系統邏輯 =================
-    function checkWeeklyReset() {
+    function checkResets() {
       const now = new Date();
-      let dayOfWeek = now.getDay(); 
-      if (dayOfWeek === 0) dayOfWeek = 7; 
-      
-      const monday = new Date(now);
-      monday.setHours(0,0,0,0);
-      monday.setDate(now.getDate() - dayOfWeek + 1);
+      let dayOfWeek = now.getDay(); if (dayOfWeek === 0) dayOfWeek = 7; 
+      const monday = new Date(now); monday.setHours(0,0,0,0); monday.setDate(now.getDate() - dayOfWeek + 1);
       const currentMondayStr = monday.toLocaleDateString('en-CA');
-
+      
       if (state.lastFitnessReset !== currentMondayStr) {
-        state.weeklyFitness.forEach(d => {
-          d.goal = ''; d.calories = ''; d.completed = false;
-        });
+        state.weeklyFitness.forEach(d => { d.goal = ''; d.completed = false; });
         state.lastFitnessReset = currentMondayStr;
-        saveData();
       }
+      saveData();
     }
 
     function checkMonthlyAllowance() {
@@ -412,27 +462,22 @@
     }
 
     function skipAllowance() {
-      state.lastAllowancePromptMonth = currentMonthStr;
-      saveData();
+      state.lastAllowancePromptMonth = currentMonthStr; saveData();
       document.getElementById('allowance-modal').classList.add('hidden');
     }
 
     function addAllowance() {
       const amount = Number(document.getElementById('allowance-amount').value);
       if (amount > 0) {
-        state.transactions.push({
-          id: Date.now(), type: 'income', desc: '每月餐食/零用', amount: amount, category: '餐食費', date: todayStr
-        });
+        state.transactions.push({ id: Date.now(), type: 'income', desc: '每月餐食/零用', amount: amount, category: '餐食費', date: todayStr });
       }
-      state.lastAllowancePromptMonth = currentMonthStr;
-      saveData();
+      state.lastAllowancePromptMonth = currentMonthStr; saveData();
       document.getElementById('allowance-modal').classList.add('hidden');
       if (state.activeTab === 'expenses') renderExpenses();
     }
 
     function startApp() {
-      checkWeeklyReset();
-      
+      checkResets();
       const audio = new Audio('20260425_015434865.mp3');
       audio.play().catch(err => {
         if ('speechSynthesis' in window) {
@@ -442,50 +487,11 @@
           window.speechSynthesis.speak(msg);
         }
       });
-      
       document.getElementById('splash-screen').classList.add('hidden');
       document.getElementById('main-app').classList.remove('hidden');
       
-      if ("Notification" in window) {
-        Notification.requestPermission().then(permission => {
-          if (permission === "granted") {
-            let notifyMsg = [];
-            state.countdowns.forEach(c => {
-              const days = getDaysLeft(c.targetDate);
-              if (days >= 0 && days <= 10) notifyMsg.push(`[EVENT] ${c.title} // ${days} Days`);
-            });
-
-            const todayDay = new Date().getDate();
-            const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-            state.monthlyTasks.forEach(m => {
-              let targetDay = m.dayOfMonth > daysInMonth ? daysInMonth : m.dayOfMonth;
-              let daysLeft;
-              if (targetDay >= todayDay) {
-                daysLeft = targetDay - todayDay;
-              } else {
-                const nextMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
-                const daysInNextMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).getDate();
-                let nextTargetDay = m.dayOfMonth > daysInNextMonth ? daysInNextMonth : m.dayOfMonth;
-                daysLeft = (daysInMonth - todayDay) + nextTargetDay;
-              }
-              if (daysLeft >= 0 && daysLeft <= 5) notifyMsg.push(`[RECURRING] ${m.title} // ${daysLeft} Days`);
-            });
-
-            if (notifyMsg.length > 0) {
-              new Notification("VAMP XO // ALERTS", {
-                body: notifyMsg.join('\n'),
-                icon: "c2f62be9-8049-4d67-8e05-186768c3c9d4.jpg"
-              });
-            }
-          }
-        });
-      }
-
-      updateBMI();
       switchTab(state.activeTab || 'tasks'); 
-      setTxType('expense'); // 初始化記帳表單
-      
-      // 檢查是否為新月份需要問餐食費
+      setTxType('expense'); 
       setTimeout(checkMonthlyAllowance, 500); 
     }
 
@@ -497,19 +503,15 @@
     }
 
     function switchTab(tabId) {
-      state.activeTab = tabId;
-      saveData();
+      state.activeTab = tabId; saveData();
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.topbar-content').forEach(el => el.classList.add('hidden'));
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
       document.getElementById(`topbar-${tabId}`).classList.remove('hidden');
-
       document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (btn.dataset.tab === tabId) {
-          btn.className = `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-white`;
-        } else {
-          btn.className = `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-zinc-700 hover:text-zinc-400`;
-        }
+        btn.className = (btn.dataset.tab === tabId) 
+          ? `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-white`
+          : `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-zinc-700 hover:text-zinc-400`;
       });
       renderAll();
     }
@@ -524,72 +526,51 @@
 
     // ================= 任務與倒數 =================
     function getDaysLeft(targetDate) {
-      const todayObj = new Date(todayStr);
-      const targetObj = new Date(targetDate);
+      const todayObj = new Date(todayStr); const targetObj = new Date(targetDate);
       return Math.ceil((targetObj - todayObj) / (1000 * 60 * 60 * 24));
     }
-
     function addCountdown(e) {
       e.preventDefault();
-      const title = document.getElementById('new-cd-title').value;
-      const date = document.getElementById('new-cd-date').value;
+      const title = document.getElementById('new-cd-title').value, date = document.getElementById('new-cd-date').value;
       if (!title.trim() || !date) return;
       state.countdowns.push({ id: Date.now(), title, targetDate: date });
-      document.getElementById('new-cd-title').value = '';
-      saveData(); renderCountdowns();
+      document.getElementById('new-cd-title').value = ''; saveData(); renderCountdowns();
     }
-
-    function deleteCountdown(id) {
-      state.countdowns = state.countdowns.filter(c => c.id !== id);
-      saveData(); renderCountdowns();
-    }
-
+    function deleteCountdown(id) { state.countdowns = state.countdowns.filter(c => c.id !== id); saveData(); renderCountdowns(); }
     function renderCountdowns() {
-      const list = document.getElementById('countdowns-list');
-      list.innerHTML = state.countdowns.map(c => {
-        const days = getDaysLeft(c.targetDate);
-        const isPast = days < 0;
+      document.getElementById('countdowns-list').innerHTML = state.countdowns.map(c => {
+        const days = getDaysLeft(c.targetDate); const isPast = days < 0;
         return `
-          <div class="bg-black brutal-border p-3 relative overflow-hidden flex flex-col justify-between h-20">
-            <button onclick="deleteCountdown(${c.id})" class="absolute top-2 right-2 text-zinc-700 hover:text-white"><i data-lucide="x" class="w-3 h-3"></i></button>
+          <div class="bg-black brutal-border p-3 relative overflow-hidden flex flex-col justify-between h-20 group">
+            <button onclick="deleteCountdown(${c.id})" class="absolute top-2 right-2 text-zinc-700 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="x" class="w-3 h-3"></i></button>
             <div class="text-[9px] font-black text-zinc-500 tracking-widest uppercase truncate pr-4">${c.title}</div>
             <div class="flex items-baseline gap-1">
               <span class="text-2xl font-black ${isPast ? 'text-zinc-600' : 'text-white'}">${Math.abs(days)}</span>
               <span class="text-[9px] text-zinc-600 font-bold tracking-widest">${isPast ? 'AGO' : 'DAYS'}</span>
             </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
       lucide.createIcons();
     }
 
     function addMonthlyTask(e) {
       e.preventDefault();
-      const title = document.getElementById('new-monthly-title').value;
-      const day = parseInt(document.getElementById('new-monthly-day').value);
+      const title = document.getElementById('new-monthly-title').value, day = parseInt(document.getElementById('new-monthly-day').value);
       if (!title.trim() || !day || day < 1 || day > 31) return;
-      if(!state.monthlyTasks) state.monthlyTasks = [];
       state.monthlyTasks.push({ id: Date.now(), title, dayOfMonth: day });
-      document.getElementById('new-monthly-title').value = '';
-      document.getElementById('new-monthly-day').value = '';
+      document.getElementById('new-monthly-title').value = ''; document.getElementById('new-monthly-day').value = '';
       saveData(); renderMonthly();
     }
-    function deleteMonthlyTask(id) {
-      state.monthlyTasks = state.monthlyTasks.filter(m => m.id !== id);
-      saveData(); renderMonthly();
-    }
+    function deleteMonthlyTask(id) { state.monthlyTasks = state.monthlyTasks.filter(m => m.id !== id); saveData(); renderMonthly(); }
     function renderMonthly() {
-      const list = document.getElementById('monthly-list');
-      if(!state.monthlyTasks) state.monthlyTasks = [];
-      list.innerHTML = state.monthlyTasks.map(m => `
+      document.getElementById('monthly-list').innerHTML = state.monthlyTasks.map(m => `
         <div class="flex items-center justify-between p-2 bg-transparent brutal-border">
           <div class="flex items-center gap-3">
             <div class="bg-white text-black font-black text-[9px] px-2 py-1 tracking-widest">DAY ${m.dayOfMonth}</div>
             <span class="text-xs text-white font-black tracking-widest uppercase">${m.title}</span>
           </div>
           <button onclick="deleteMonthlyTask(${m.id})" class="text-zinc-700 hover:text-red-600 mr-1"><i data-lucide="x" class="w-3 h-3"></i></button>
-        </div>
-      `).join('');
+        </div>`).join('');
       lucide.createIcons();
     }
 
@@ -598,47 +579,33 @@
       const input = document.getElementById('new-task-input');
       if (!input.value.trim()) return;
       state.tasks.push({ id: Date.now(), text: input.value, completed: false });
-      input.value = '';
-      saveData(); renderTasks();
+      input.value = ''; saveData(); renderTasks();
     }
     function toggleTask(id) {
-      const task = state.tasks.find(t => t.id === id);
-      if(task) task.completed = !task.completed;
-      saveData(); renderTasks();
+      const task = state.tasks.find(t => t.id === id); if(task) task.completed = !task.completed; saveData(); renderTasks();
     }
-    function deleteTask(id) {
-      state.tasks = state.tasks.filter(t => t.id !== id);
-      saveData(); renderTasks();
-    }
+    function deleteTask(id) { state.tasks = state.tasks.filter(t => t.id !== id); saveData(); renderTasks(); }
     function renderTasks() {
       document.getElementById('pending-tasks-count').textContent = state.tasks.filter(t => !t.completed).length;
-      const list = document.getElementById('tasks-list');
-      list.innerHTML = state.tasks.map(task => `
+      document.getElementById('tasks-list').innerHTML = state.tasks.map(task => `
         <div class="flex items-center justify-between p-3 bg-transparent border-b border-zinc-900">
           <button onclick="toggleTask(${task.id})" class="mr-3 focus:outline-none">
             ${task.completed ? '<i data-lucide="check-square" class="w-4 h-4 text-zinc-700"></i>' : '<i data-lucide="square" class="w-4 h-4 text-zinc-400"></i>'}
           </button>
           <span class="flex-1 text-xs font-bold tracking-wider uppercase ${task.completed ? 'line-through text-zinc-700' : 'text-zinc-200'}">${task.text}</span>
           <button onclick="deleteTask(${task.id})" class="text-zinc-800 hover:text-red-600 transition-colors focus:outline-none"><i data-lucide="x" class="w-3 h-3"></i></button>
-        </div>
-      `).join('');
+        </div>`).join('');
       lucide.createIcons();
     }
 
     // ================= 記帳防護與圖表邏輯 =================
-    
-    // 計算總資金
     function getTotalFunds() {
-      const incomeTotal = state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0);
-      return state.baseBalance + incomeTotal;
+      const inc = state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0);
+      return state.baseBalance + inc;
     }
-
     function setTxType(type) {
       txType = type;
-      const btnExp = document.getElementById('btn-type-expense');
-      const btnInc = document.getElementById('btn-type-income');
-      const select = document.getElementById('exp-cat');
-      
+      const btnExp = document.getElementById('btn-type-expense'), btnInc = document.getElementById('btn-type-income'), select = document.getElementById('exp-cat');
       if (type === 'expense') {
         btnExp.className = "flex-1 border border-white bg-white text-black text-[10px] font-black py-2 tracking-widest uppercase transition-all";
         btnInc.className = "flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all hover:text-white";
@@ -648,362 +615,335 @@
         btnExp.className = "flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all hover:text-white";
         select.innerHTML = incomeCategories.map(c => `<option value="${c.name}" class="bg-black">${c.name}</option>`).join('');
       }
-      checkCategoryLock(); // 切換類型後重新檢查鎖定
+      checkCategoryLock();
     }
-
     function toggleBudgetEdit() {
       document.getElementById('budget-input').value = state.baseBalance;
       document.getElementById('budget-edit-mode').classList.remove('hidden');
       document.getElementById('budget-display-mode').classList.add('hidden');
     }
-    
     function saveBudget() {
-      state.baseBalance = Number(document.getElementById('budget-input').value);
-      saveData();
+      state.baseBalance = Number(document.getElementById('budget-input').value); saveData();
       document.getElementById('budget-edit-mode').classList.add('hidden');
       document.getElementById('budget-display-mode').classList.remove('hidden');
       renderExpenses();
     }
-
     function checkCategoryLock() {
-      const cat = document.getElementById('exp-cat').value;
-      const btn = document.getElementById('exp-submit-btn');
-      const inputs = document.querySelectorAll('.exp-input');
-      const warning = document.getElementById('expense-lock-warning');
-      
+      const cat = document.getElementById('exp-cat').value, btn = document.getElementById('exp-submit-btn');
+      const inputs = document.querySelectorAll('.exp-input'), warning = document.getElementById('expense-lock-warning');
       if (txType === 'income') {
-        // 進帳不受鎖定影響
         btn.disabled = false; btn.textContent = 'Confirm';
         btn.className = "w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase";
-        inputs.forEach(i => i.disabled = false);
-        warning.classList.add('hidden');
-        return false;
+        inputs.forEach(i => i.disabled = false); warning.classList.add('hidden'); return false;
       }
-
-      // 動態解除鎖定檢查 (如果總金額變大，先前的超過部分可能現在就不超過了)
-      const totalFunds = getTotalFunds();
-      const limitAmount = totalFunds * 0.3;
+      const limitAmount = getTotalFunds() * 0.3;
       const catSpent = state.transactions.filter(t => t.type === 'expense' && t.category === cat).reduce((s, ex) => s + ex.amount, 0);
-
-      if (state.lockedCategories[cat] && catSpent < limitAmount) {
-        delete state.lockedCategories[cat]; // 自動解鎖
-        saveData();
-      }
+      if (state.lockedCategories[cat] && catSpent < limitAmount) { delete state.lockedCategories[cat]; saveData(); }
 
       const lockDateStr = state.lockedCategories[cat];
       let isLocked = lockDateStr && new Date(todayStr) < new Date(lockDateStr);
-
       if (isLocked) {
         btn.disabled = true; btn.textContent = 'LOCKED';
         btn.className = "w-full font-black py-3 bg-zinc-900 text-zinc-600 tracking-[0.3em] mt-2 uppercase text-[10px] cursor-not-allowed";
-        inputs.forEach(i => i.disabled = true);
-        document.getElementById('exp-cat').disabled = false; 
-        warning.classList.remove('hidden');
-        document.getElementById('lock-warning-cat').textContent = cat;
-        document.getElementById('lock-warning-date').textContent = lockDateStr;
+        inputs.forEach(i => i.disabled = true); document.getElementById('exp-cat').disabled = false; 
+        warning.classList.remove('hidden'); document.getElementById('lock-warning-cat').textContent = cat; document.getElementById('lock-warning-date').textContent = lockDateStr;
       } else {
         btn.disabled = false; btn.textContent = 'Confirm';
         btn.className = "w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase";
-        inputs.forEach(i => i.disabled = false);
-        warning.classList.add('hidden');
+        inputs.forEach(i => i.disabled = false); warning.classList.add('hidden');
       }
       return isLocked;
     }
-
     function addTransaction(e) {
       e.preventDefault();
       if (txType === 'expense' && checkCategoryLock()) return;
-      
-      const desc = document.getElementById('exp-desc').value;
-      const amount = Number(document.getElementById('exp-amount').value);
-      const cat = document.getElementById('exp-cat').value;
-      const date = document.getElementById('exp-date').value;
-
+      const desc = document.getElementById('exp-desc').value, amount = Number(document.getElementById('exp-amount').value), cat = document.getElementById('exp-cat').value, date = document.getElementById('exp-date').value;
       state.transactions.push({ id: Date.now(), type: txType, desc, amount, category: cat, date });
-
       if (txType === 'expense') {
-        const totalFunds = getTotalFunds();
-        const limitAmount = totalFunds * 0.3;
+        const limitAmount = getTotalFunds() * 0.3;
         const catSpent = state.transactions.filter(t => t.type === 'expense' && t.category === cat).reduce((s, ex) => s + ex.amount, 0);
-
         if (catSpent >= limitAmount && !state.lockedCategories[cat]) {
           const unlockDate = new Date(todayStr); unlockDate.setDate(unlockDate.getDate() + 7);
           state.lockedCategories[cat] = unlockDate.toISOString().split('T')[0];
           showToast(`LOCKDOWN: ${cat} limit exceeded.`);
-          if ("Notification" in window && Notification.permission === "granted") {
-            new Notification("SYSTEM LOCKED", { body: `${cat} blocked for 7 days.`, icon: "c2f62be9-8049-4d67-8e05-186768c3c9d4.jpg" });
-          }
         }
       }
-
-      saveData(); 
-      document.getElementById('exp-desc').value = ''; 
-      document.getElementById('exp-amount').value = '';
-      renderExpenses();
+      saveData(); document.getElementById('exp-desc').value = ''; document.getElementById('exp-amount').value = ''; renderExpenses();
     }
-
-    function deleteTransaction(id) {
-      state.transactions = state.transactions.filter(t => t.id !== id);
-      saveData(); renderExpenses();
-    }
+    function deleteTransaction(id) { state.transactions = state.transactions.filter(t => t.id !== id); saveData(); renderExpenses(); }
 
     function renderExpenses() {
       const totalFunds = getTotalFunds();
       document.getElementById('budget-display').innerHTML = `$${state.baseBalance}`;
-      document.getElementById('expense-limit-display').innerText = `LIMIT: 30% OF FUNDS ($${Math.round(totalFunds * 0.3)})`;
+      document.getElementById('expense-limit-display').innerText = `LIMIT: 30% ($${Math.round(totalFunds * 0.3)})`;
 
-      const expenseTotal = state.transactions.filter(t => t.type === 'expense').reduce((s, i) => s + i.amount, 0);
-      const incomeTotal = state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0);
-      const remaining = totalFunds - expenseTotal;
+      const expTot = state.transactions.filter(t => t.type === 'expense').reduce((s, i) => s + i.amount, 0);
+      const incTot = state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0);
+      const remaining = totalFunds - expTot;
       
       const remainDisp = document.getElementById('remaining-display');
       remainDisp.textContent = `$${remaining}`;
       remainDisp.className = `text-3xl font-black tracking-tight ${remaining < 0 ? 'text-red-600' : 'text-white'}`;
-      
-      document.getElementById('total-spent-display').textContent = `$${expenseTotal}`;
-      document.getElementById('total-income-display').textContent = `$${incomeTotal}`;
-      
+      document.getElementById('total-spent-display').textContent = `$${expTot}`;
+      document.getElementById('total-income-display').textContent = `$${incTot}`;
       checkCategoryLock();
 
-      // Chart - 僅計算花費 (Expense)
       let cumulativePercent = 0;
-      const expensesOnly = state.transactions.filter(t => t.type === 'expense');
+      const expOnly = state.transactions.filter(t => t.type === 'expense');
       const groupedData = expenseCategories.map(cat => {
-        const items = expensesOnly.filter(e => e.category === cat.name);
+        const items = expOnly.filter(e => e.category === cat.name);
         const total = items.reduce((sum, e) => sum + e.amount, 0);
-        const detailsMap = {};
-        items.forEach(i => { detailsMap[i.desc] = (detailsMap[i.desc] || 0) + i.amount; });
+        const detailsMap = {}; items.forEach(i => { detailsMap[i.desc] = (detailsMap[i.desc] || 0) + i.amount; });
         return { ...cat, total, items: detailsMap };
       }).filter(g => g.total > 0);
 
       const chartContainer = document.getElementById('pie-chart-container');
-      if (expenseTotal === 0) {
+      if (expTot === 0) {
         chartContainer.innerHTML = `<div class="mx-auto w-24 h-24 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-700 text-[9px] font-black tracking-widest">N/A</div>`;
       } else {
         const gradientStops = groupedData.map(g => {
-          const percent = (g.total / expenseTotal) * 100;
-          const start = cumulativePercent; cumulativePercent += percent;
+          const pct = (g.total / expTot) * 100; const start = cumulativePercent; cumulativePercent += pct;
           return `${g.color} ${start}% ${cumulativePercent}%`;
         }).join(', ');
 
-        const legendHtml = groupedData.map(g => {
-          const pct = Math.round((g.total / expenseTotal) * 100);
-          const subItemsHtml = Object.entries(g.items).map(([desc, amt]) => `
-            <div class="flex justify-between text-[9px] text-zinc-500 pl-4 mt-1 uppercase font-bold tracking-wider">
-              <span class="truncate pr-2">↳ ${desc}</span>
-              <span>$${amt}</span>
+        const legendHtml = groupedData.map(g => `
+          <div class="mb-3">
+            <div class="flex items-center justify-between text-[10px]">
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-none" style="background-color: ${g.color};"></span><span class="text-zinc-300 font-black uppercase tracking-widest">${g.name}</span></div>
+              <span class="font-black text-white">${Math.round((g.total / expTot) * 100)}% <span class="text-zinc-600 ml-1">($${g.total})</span></span>
             </div>
-          `).join('');
-
-          return `
-            <div class="mb-3">
-              <div class="flex items-center justify-between text-[10px]">
-                <div class="flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-none" style="background-color: ${g.color};"></span>
-                  <span class="text-zinc-300 font-black uppercase tracking-widest">${g.name}</span>
-                </div>
-                <span class="font-black text-white">${pct}% <span class="text-zinc-600 ml-1">($${g.total})</span></span>
-              </div>
-              ${subItemsHtml}
-            </div>`;
-        }).join('');
-        
-        chartContainer.innerHTML = `
-          <div class="w-24 h-24 rounded-full flex-shrink-0 border border-zinc-800 mx-auto" style="background: conic-gradient(${gradientStops})"></div>
-          <div class="w-full space-y-1 mt-4 border-t border-zinc-900 pt-4">${legendHtml}</div>
-        `;
+            ${Object.entries(g.items).map(([desc, amt]) => `<div class="flex justify-between text-[9px] text-zinc-500 pl-4 mt-1 uppercase font-bold tracking-wider"><span class="truncate pr-2">↳ ${desc}</span><span>$${amt}</span></div>`).join('')}
+          </div>`).join('');
+        chartContainer.innerHTML = `<div class="w-24 h-24 rounded-full flex-shrink-0 border border-zinc-800 mx-auto" style="background: conic-gradient(${gradientStops})"></div><div class="w-full space-y-1 mt-4 border-t border-zinc-900 pt-4">${legendHtml}</div>`;
       }
 
-      // List (依照時間新到舊排序顯示全部)
       const sortedTx = [...state.transactions].sort((a,b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
       document.getElementById('expenses-list').innerHTML = sortedTx.map(tx => {
-        if (tx.type === 'income') {
-          return `
-            <div class="flex items-center justify-between p-3 bg-black brutal-border border-l-2 border-l-green-500">
-              <div class="flex items-center gap-3">
-                <div>
-                  <div class="text-green-500 text-xs font-bold tracking-widest uppercase">${tx.desc}</div>
-                  <div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-green-500 text-sm font-black tracking-wider">+$${tx.amount}</span>
-                <button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
-              </div>
-            </div>`;
-        } else {
-          const catColor = expenseCategories.find(c => c.name === tx.category)?.color || '#ccc';
-          return `
-            <div class="flex items-center justify-between p-3 bg-black brutal-border">
-              <div class="flex items-center gap-3">
-                <span class="w-1 h-5" style="background-color: ${catColor};"></span>
-                <div>
-                  <div class="text-white text-xs font-bold tracking-widest uppercase">${tx.desc}</div>
-                  <div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-white text-sm font-black tracking-wider">-$${tx.amount}</span>
-                <button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
-              </div>
-            </div>`;
-        }
+        if (tx.type === 'income') return `
+          <div class="flex items-center justify-between p-3 bg-black brutal-border border-l-2 border-l-green-500">
+            <div><div class="text-green-500 text-xs font-bold tracking-widest uppercase">${tx.desc}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div></div>
+            <div class="flex items-center gap-3"><span class="text-green-500 text-sm font-black tracking-wider">+$${tx.amount}</span><button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+          </div>`;
+        const catColor = expenseCategories.find(c => c.name === tx.category)?.color || '#ccc';
+        return `
+          <div class="flex items-center justify-between p-3 bg-black brutal-border">
+            <div class="flex items-center gap-3"><span class="w-1 h-5" style="background-color: ${catColor};"></span><div><div class="text-white text-xs font-bold tracking-widest uppercase">${tx.desc}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div></div></div>
+            <div class="flex items-center gap-3"><span class="text-white text-sm font-black tracking-wider">-$${tx.amount}</span><button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+          </div>`;
       }).join('');
       lucide.createIcons();
     }
 
-    // ================= 健身 BMI 與週目標 =================
-    function updateBMI() {
-      const h = document.getElementById('bmi-h').value;
-      const w = document.getElementById('bmi-w').value;
-      const display = document.getElementById('bmi-display');
-      state.bmiHeight = h; state.bmiWeight = w; saveData();
-      display.textContent = (h && w && h > 0) ? (w / Math.pow(h / 100, 2)).toFixed(1) : '--';
-    }
-
-    function updateFitnessInput(id, field, value) {
-      const day = state.weeklyFitness.find(d => d.id === id);
-      if(day) day[field] = value;
-      saveData();
-      if(field === 'goal' || field === 'completed') renderFitness(); 
-    }
-
-    function clearFitnessDay(id) {
-      const day = state.weeklyFitness.find(d => d.id === id);
-      if(day) { day.goal = ''; day.calories = ''; day.completed = false; }
+    // ================= 健身 (Body Metrics & Workouts) =================
+    function addBodyMetric(e) {
+      e.preventDefault();
+      const date = document.getElementById('metric-date').value, h = Number(document.getElementById('metric-h').value), w = Number(document.getElementById('metric-w').value);
+      if(!date || !h || !w) return;
+      const bmi = (w / Math.pow(h / 100, 2)).toFixed(1);
+      state.bodyMetrics.unshift({ id: Date.now(), date, h, w, bmi });
+      state.bmiHeight = h; state.bmiWeight = w;
+      document.getElementById('metric-h').value = ''; document.getElementById('metric-w').value = '';
       saveData(); renderFitness();
     }
 
+    function deleteBodyMetric(id) { state.bodyMetrics = state.bodyMetrics.filter(m => m.id !== id); saveData(); renderFitness(); }
+
+    function updateFitnessInput(id, field, value) {
+      const day = state.weeklyFitness.find(d => d.id === id); if(day) day[field] = value; saveData();
+      if(field === 'completed') renderFitness(); 
+    }
+
+    function toggleCustomExercise() {
+      const select = document.getElementById('wo-exercise-select'), customInput = document.getElementById('wo-exercise-custom');
+      if (select.value === '自訂 (Custom...)') { select.classList.add('hidden'); customInput.classList.remove('hidden'); customInput.required = true; }
+      else { select.classList.remove('hidden'); customInput.classList.add('hidden'); customInput.required = false; customInput.value = ''; }
+    }
+
+    function addWorkout(e) {
+      e.preventDefault();
+      const date = document.getElementById('wo-date').value, select = document.getElementById('wo-exercise-select'), customInput = document.getElementById('wo-exercise-custom');
+      let exercise = select.value === '自訂 (Custom...)' ? customInput.value : select.value;
+      const sets = document.getElementById('wo-sets').value, reps = document.getElementById('wo-reps').value;
+      
+      if(!exercise || !sets || !reps) return;
+      state.workouts.unshift({ id: Date.now(), date, exercise, sets, reps });
+      document.getElementById('wo-sets').value=''; document.getElementById('wo-reps').value='';
+      if(select.value === '自訂 (Custom...)') { select.value = predefinedExercises[0]; toggleCustomExercise(); }
+      saveData(); renderFitness();
+    }
+    
+    function deleteWorkout(id) { state.workouts = state.workouts.filter(w => w.id !== id); saveData(); renderFitness(); }
+
     function renderFitness() {
+      const metricsList = document.getElementById('metrics-list');
+      if (state.bodyMetrics.length === 0) {
+        metricsList.innerHTML = `<div class="text-center text-zinc-700 text-[9px] font-black tracking-[0.2em] py-4">NO DATA</div>`;
+      } else {
+        metricsList.innerHTML = state.bodyMetrics.map(m => `
+          <div class="flex justify-between items-center bg-transparent border-b border-zinc-900 py-2">
+            <div>
+              <span class="text-[10px] text-zinc-500 font-bold tracking-widest mr-2">${m.date}</span>
+              <span class="text-xs text-white font-black tracking-widest">H: ${m.h} <span class="text-zinc-600">|</span> W: ${m.w}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-black text-rose-600 tracking-wider">BMI ${m.bmi}</span>
+              <button onclick="deleteBodyMetric(${m.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+            </div>
+          </div>`).join('');
+      }
+
       document.getElementById('fitness-list').innerHTML = state.weeklyFitness.map(day => {
         if (!day.goal) {
           return `
             <div class="p-3 brutal-border bg-black">
               <div class="text-[9px] font-black text-zinc-600 tracking-widest mb-2">${day.day}</div>
-              <input type="text" placeholder="Set objective..." class="w-full bg-transparent px-2 py-1 text-xs border-b border-zinc-800 text-white placeholder-zinc-800 font-bold focus:outline-none focus:border-white rounded-none uppercase tracking-wider"
+              <input type="text" placeholder="Objective (e.g. Leg Day)" class="w-full bg-transparent px-2 py-1 text-xs border-b border-zinc-800 text-white placeholder-zinc-800 font-bold focus:outline-none focus:border-white rounded-none uppercase tracking-wider"
                 onblur="updateFitnessInput(${day.id}, 'goal', this.value)"
-                onkeydown="if(event.key === 'Enter'){ event.preventDefault(); updateFitnessInput(${day.id}, 'goal', this.value); }"
-              >
+                onkeydown="if(event.key === 'Enter'){ event.preventDefault(); updateFitnessInput(${day.id}, 'goal', this.value); document.activeElement.blur(); }">
             </div>`;
         }
-
         return `
           <div class="p-3 brutal-border ${day.completed ? 'bg-zinc-950 opacity-40' : 'bg-black'}">
-            <div class="flex justify-between items-center mb-3">
+            <div class="flex justify-between items-center mb-1">
               <span class="text-[10px] font-black tracking-widest ${day.completed ? 'text-zinc-600' : 'text-zinc-400'}">${day.day}</span>
               ${day.completed ? '<span class="text-[8px] text-black bg-white font-black tracking-widest px-1.5 py-0.5 uppercase">Cleared</span>' : ''}
             </div>
-            <div class="text-white font-black tracking-widest text-xs mb-4 uppercase ${day.completed ? 'line-through text-zinc-600' : ''}">${day.goal}</div>
-            <div class="flex items-center gap-2 mb-3">
-              <input type="date" value="${day.date}" onchange="updateFitnessInput(${day.id}, 'date', this.value)" ${day.completed ? 'disabled' : ''} style="color-scheme: dark;"
-                class="w-28 bg-transparent border-b border-zinc-800 px-1 py-1 text-[10px] focus:outline-none focus:border-white disabled:opacity-50 text-zinc-400 font-black rounded-none"
-              >
-              <div class="flex-1 flex items-center bg-transparent border-b border-zinc-800 px-1 py-1">
-                <input type="number" value="${day.calories}" onchange="updateFitnessInput(${day.id}, 'calories', this.value)" placeholder="Burn" ${day.completed ? 'disabled' : ''}
-                  class="w-full bg-transparent focus:outline-none disabled:opacity-50 text-right pr-2 text-white text-xs font-black placeholder-zinc-800"
-                >
-                <span class="text-zinc-600 text-[8px] font-black tracking-[0.2em]">KCAL</span>
-              </div>
+            <div class="flex justify-between items-center">
+               <div class="text-white font-black tracking-widest text-xs uppercase ${day.completed ? 'line-through text-zinc-600' : ''}">${day.goal}</div>
+               <button onclick="updateFitnessInput(${day.id}, 'completed', ${!day.completed})" class="text-[9px] font-black tracking-[0.3em] transition-colors uppercase ${day.completed ? 'text-zinc-600' : 'text-red-600 hover:text-white'}">
+                 ${day.completed ? 'Undo' : 'Verify'}
+               </button>
             </div>
-            <div class="flex items-center justify-between pt-3 border-t border-zinc-900 mt-2">
-              <button onclick="updateFitnessInput(${day.id}, 'completed', ${!day.completed})" class="text-[9px] font-black tracking-[0.3em] transition-colors uppercase ${day.completed ? 'text-zinc-600' : 'text-white hover:text-red-600'}">
-                ${day.completed ? 'Undo' : 'Verify'}
-              </button>
-              ${day.completed ? `<button onclick="clearFitnessDay(${day.id})" class="text-zinc-700 hover:text-red-600 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
-            </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
+
+      const woList = document.getElementById('workouts-list');
+      if (state.workouts.length === 0) {
+        woList.innerHTML = `<div class="text-center text-zinc-700 text-[9px] font-black tracking-[0.2em] py-4">NO WORKOUTS RECORDED</div>`;
+      } else {
+        woList.innerHTML = state.workouts.map(w => `
+          <div class="flex items-center justify-between p-3 bg-black border-b border-zinc-900 group">
+            <div><div class="text-white text-xs font-black tracking-widest uppercase">${w.exercise}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-bold uppercase">${w.date}</div></div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <span class="text-white text-sm font-black tracking-wider">${w.sets}</span> <span class="text-[9px] text-zinc-500 font-black tracking-widest">SETS</span>
+                <span class="text-zinc-700 mx-1">x</span>
+                <span class="text-white text-sm font-black tracking-wider">${w.reps}</span> <span class="text-[9px] text-zinc-500 font-black tracking-widest">REPS</span>
+              </div>
+              <button onclick="deleteWorkout(${w.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+          </div>`).join('');
+      }
       lucide.createIcons();
     }
 
-    // ================= 投資理財筆記 (彈窗詳細檢視) =================
-    function handleImageUpload(e) {
+    // ================= 筆記分類與 PDF (GoodNotes) =================
+    function updateCategoryDropdowns() {
+      const selectForm = document.getElementById('note-cat-select');
+      selectForm.innerHTML = state.noteCategories.map(c => `<option value="${c}" class="bg-black">${c}</option>`).join('');
+    }
+
+    function handleMediaUpload(e) {
       const file = e.target.files[0];
       if (file) {
+        if(file.size > 4000000) { alert("File too large. Max ~4MB (Compress PDF first)."); return; }
+        const isPdf = file.type === 'application/pdf';
         const reader = new FileReader();
         reader.onload = function(event) {
-          state.currentUploadedImage = event.target.result;
-          document.getElementById('note-img-preview').src = state.currentUploadedImage;
-          document.getElementById('note-img-preview-container').classList.remove('hidden');
+          state.currentUploadedMedia = { data: event.target.result, type: isPdf ? 'pdf' : 'image' };
+          const container = document.getElementById('note-media-preview-container'), indicator = document.getElementById('note-media-indicator');
+          container.classList.remove('hidden');
+          if(isPdf) { indicator.textContent = "PDF FILE LOADED"; indicator.className = "text-xs font-black tracking-widest text-red-500"; }
+          else { indicator.textContent = "IMAGE LOADED"; indicator.className = "text-xs font-black tracking-widest text-zinc-500"; }
         };
         reader.readAsDataURL(file);
       }
     }
-    function clearNoteImage() {
-      state.currentUploadedImage = null;
-      document.getElementById('note-file').value = '';
-      document.getElementById('note-img-preview-container').classList.add('hidden');
-    }
+    function clearNoteMedia() { state.currentUploadedMedia = null; document.getElementById('note-file').value = ''; document.getElementById('note-media-preview-container').classList.add('hidden'); }
+    
     function addNote(e) {
       e.preventDefault();
-      const text = document.getElementById('note-text').value;
-      const date = document.getElementById('note-date').value;
-      if (!text.trim() && !state.currentUploadedImage) return;
+      const text = document.getElementById('note-text').value, date = document.getElementById('note-date').value;
+      let cat = document.getElementById('note-cat-select').value;
+      const newCat = document.getElementById('note-new-cat').value.trim().toUpperCase();
+      
+      if (newCat && !state.noteCategories.includes(newCat)) { state.noteCategories.push(newCat); cat = newCat; }
+      if (!text.trim() && !state.currentUploadedMedia) return;
 
-      state.learningNotes.unshift({ id: Date.now(), date, text, image: state.currentUploadedImage });
-      try { saveData(); } catch (err) {
-        alert('Storage full. Please delete older media notes.');
-        state.learningNotes.shift(); return;
-      }
-      document.getElementById('note-text').value = '';
-      clearNoteImage(); renderNotes();
+      state.learningNotes.unshift({ id: Date.now(), date, category: cat, text, media: state.currentUploadedMedia });
+      try { saveData(); } catch (err) { alert('Storage full. Please delete older media notes.'); state.learningNotes.shift(); return; }
+      
+      document.getElementById('note-text').value = ''; document.getElementById('note-new-cat').value = '';
+      clearNoteMedia(); updateCategoryDropdowns(); renderNotes();
     }
-    function deleteLearningNote(id) {
-      if (event) event.stopPropagation(); 
-      state.learningNotes = state.learningNotes.filter(n => n.id !== id);
-      saveData(); renderNotes();
-    }
+    
+    function deleteLearningNote(id) { if (event) event.stopPropagation(); state.learningNotes = state.learningNotes.filter(n => n.id !== id); saveData(); renderNotes(); }
+
+    function openFolder(cat) { currentFolder = cat; renderNotes(); }
+    function closeFolder() { currentFolder = null; renderNotes(); }
 
     function openNoteModal(id) {
-      const note = state.learningNotes.find(n => n.id === id);
-      if(!note) return;
-      
-      const modal = document.getElementById('note-modal');
-      const imgContainer = document.getElementById('modal-img-container');
-      const img = document.getElementById('modal-img');
-      const dateEl = document.getElementById('modal-date');
-      const textEl = document.getElementById('modal-text');
+      const note = state.learningNotes.find(n => n.id === id); if(!note) return;
+      const modal = document.getElementById('note-modal'), container = document.getElementById('modal-media-container');
+      const dateEl = document.getElementById('modal-date'), textEl = document.getElementById('modal-text'), catEl = document.getElementById('modal-category');
 
-      if(note.image) {
-        img.src = note.image;
-        imgContainer.classList.remove('hidden');
-      } else {
-        img.src = '';
-        imgContainer.classList.add('hidden');
-      }
+      if(note.media) {
+        container.classList.remove('hidden');
+        if(note.media.type === 'pdf') container.innerHTML = `<iframe src="${note.media.data}" class="w-full h-full border-none"></iframe>`;
+        else container.innerHTML = `<img src="${note.media.data}" class="w-full h-full object-contain grayscale opacity-80">`;
+      } else { container.classList.add('hidden'); container.innerHTML = ''; }
 
-      dateEl.textContent = `DATE // ${note.date}`;
-      textEl.textContent = note.text;
+      dateEl.textContent = `DATE // ${note.date}`; catEl.textContent = note.category; textEl.textContent = note.text;
       modal.classList.remove('hidden');
     }
     
-    function closeNoteModal() {
-      document.getElementById('note-modal').classList.add('hidden');
-    }
+    function closeNoteModal() { document.getElementById('note-modal').classList.add('hidden'); document.getElementById('modal-media-container').innerHTML=''; }
 
     function renderNotes() {
-      const list = document.getElementById('notes-list');
-      if (state.learningNotes.length === 0) {
-        list.innerHTML = `<p class="col-span-2 text-center text-zinc-700 text-[10px] font-black tracking-[0.3em] py-10 uppercase">No Data</p>`;
-        return;
+      updateCategoryDropdowns();
+      const folderView = document.getElementById('notes-folder-view'), listView = document.getElementById('notes-list-view');
+
+      if (!currentFolder) {
+        folderView.classList.remove('hidden'); listView.classList.add('hidden');
+        folderView.innerHTML = state.noteCategories.map(cat => {
+          const count = state.learningNotes.filter(n => n.category === cat).length;
+          return `
+            <div onclick="openFolder('${cat}')" class="bg-black brutal-border p-4 cursor-pointer hover:border-zinc-500 transition-colors group flex flex-col justify-between h-24">
+              <div class="flex justify-between items-start">
+                <i data-lucide="folder" class="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors"></i>
+                <span class="text-[9px] font-black text-zinc-500 tracking-widest">${count} NOTES</span>
+              </div>
+              <div class="text-xs font-black text-white tracking-widest uppercase truncate mt-2">${cat}</div>
+            </div>`;
+        }).join('');
+      } else {
+        folderView.classList.add('hidden'); listView.classList.remove('hidden');
+        document.getElementById('current-folder-name').textContent = currentFolder;
+        
+        const list = document.getElementById('notes-list-content');
+        const filtered = state.learningNotes.filter(n => n.category === currentFolder);
+
+        if (filtered.length === 0) { list.innerHTML = `<p class="col-span-2 text-center text-zinc-700 text-[10px] font-black tracking-[0.3em] py-10 uppercase">Empty Folder</p>`; } 
+        else {
+          list.innerHTML = filtered.map(note => `
+            <div onclick="openNoteModal(${note.id})" class="bg-black brutal-border overflow-hidden relative cursor-pointer hover:border-zinc-500 transition-colors h-32 flex flex-col group">
+              ${note.media ? (note.media.type === 'pdf' ? `<div class="absolute inset-0 bg-zinc-900 flex items-center justify-center"><i data-lucide="file-text" class="w-8 h-8 text-zinc-700"></i></div>` : `<img src="${note.media.data}" class="absolute inset-0 w-full h-full object-cover grayscale opacity-40">`) : ''}
+              <div class="relative z-10 p-2 flex flex-col h-full bg-gradient-to-t from-black via-black/80 to-transparent">
+                <div class="flex justify-between items-start mb-auto">
+                  <span class="text-[8px] text-zinc-400 border border-zinc-800 font-black tracking-widest px-1 py-0.5">${note.category}</span>
+                  <button onclick="deleteLearningNote(${note.id})" class="text-zinc-600 hover:text-red-600 bg-black p-0.5 border border-zinc-800"><i data-lucide="x" class="w-3 h-3"></i></button>
+                </div>
+                <p class="text-white text-[9px] font-bold line-clamp-2 leading-relaxed break-all">${note.text}</p>
+              </div>
+            </div>`).join('');
+        }
       }
-      
-      list.innerHTML = state.learningNotes.map(note => `
-        <div onclick="openNoteModal(${note.id})" class="bg-black brutal-border overflow-hidden relative cursor-pointer hover:border-zinc-500 transition-colors h-32 flex flex-col">
-          ${note.image ? `<img src="${note.image}" alt="Media" class="absolute inset-0 w-full h-full object-cover grayscale opacity-40">` : ''}
-          <div class="relative z-10 p-2 flex flex-col h-full bg-gradient-to-t from-black/90 to-transparent">
-            <div class="flex justify-between items-start mb-auto">
-              <span class="text-[8px] text-white bg-black/80 font-black tracking-widest px-1 py-0.5">${note.date}</span>
-              <button onclick="deleteLearningNote(${note.id})" class="text-zinc-500 hover:text-red-600 bg-black/80 p-0.5"><i data-lucide="x" class="w-3 h-3"></i></button>
-            </div>
-            <p class="text-zinc-300 text-[9px] font-bold line-clamp-3 leading-relaxed break-all">${note.text}</p>
-          </div>
-        </div>
-      `).join('');
       lucide.createIcons();
     }
 
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
