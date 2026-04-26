@@ -9,7 +9,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <style>
-    /* 嚴格鎖定畫面，防止偏移 */
     html, body {
       overflow-x: hidden;
       overscroll-behavior-x: none;
@@ -21,7 +20,9 @@
 
     ::-moz-selection { background: #dc2626; color: white; }
     ::selection { background: #dc2626; color: white; }
-    ::-webkit-scrollbar { width: 0px; background: transparent; }
+    
+    /* 隱藏滾動條但保留滑動功能 (針對多圖滑動很有用) */
+    ::-webkit-scrollbar { width: 0px; height: 0px; background: transparent; }
     
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.2; }
     input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.2; }
@@ -54,14 +55,16 @@
     </div>
   </div>
 
-  <!-- 筆記放大詳細視窗 (Modal) -->
+  <!-- 筆記放大詳細視窗 (Modal - 支援多圖滑動) -->
   <div id="note-modal" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-sm bg-black brutal-border relative flex flex-col h-[85vh]">
-      <button onclick="closeNoteModal()" class="absolute top-3 right-3 text-zinc-500 hover:text-white z-20 bg-black p-1 brutal-border">
+      <button onclick="closeNoteModal()" class="absolute top-3 right-3 text-zinc-500 hover:text-white z-20 bg-black p-1 brutal-border shadow-lg">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
       
-      <div id="modal-media-container" class="w-full flex-1 bg-zinc-950 flex justify-center border-b border-zinc-800 overflow-hidden relative"></div>
+      <div id="modal-media-container" class="w-full flex-1 bg-zinc-950 flex justify-center border-b border-zinc-800 overflow-hidden relative">
+        <!-- 動態生成的滑動圖片區塊 -->
+      </div>
       
       <div class="p-6 h-[30%] overflow-y-auto bg-black">
         <div class="flex justify-between items-center mb-4">
@@ -95,7 +98,6 @@
       <!-- 頂部狀態欄 -->
       <div class="pt-12 px-6 pb-5 bg-black border-b border-zinc-900 relative z-10">
         
-        <!-- 任務 Topbar -->
         <div id="topbar-tasks" class="topbar-content hidden">
           <p class="text-zinc-500 text-[9px] font-black tracking-[0.3em] mb-1">MODULE // TASKS</p>
           <div class="flex justify-between items-end">
@@ -104,7 +106,6 @@
           </div>
         </div>
 
-        <!-- 記帳 Topbar -->
         <div id="topbar-expenses" class="topbar-content hidden">
           <p class="text-zinc-500 text-[9px] font-black tracking-[0.3em] mb-1">MODULE // FINANCE</p>
           <h1 class="text-2xl font-black text-white tracking-widest uppercase mb-4">Capital</h1>
@@ -132,20 +133,18 @@
           </div>
         </div>
 
-        <!-- 健身 Topbar -->
         <div id="topbar-fitness" class="topbar-content hidden">
           <p class="text-zinc-500 text-[9px] font-black tracking-[0.3em] mb-1">MODULE // BODY</p>
           <h1 class="text-2xl font-black text-white tracking-widest uppercase">Metrics</h1>
         </div>
 
-        <!-- 理財與筆記 Topbar -->
         <div id="topbar-investment" class="topbar-content hidden">
           <p class="text-zinc-500 text-[9px] font-black tracking-[0.3em] mb-1">MODULE // NOTES</p>
           <div class="flex justify-between items-end">
             <h1 class="text-2xl font-black text-white tracking-widest uppercase">Vault</h1>
           </div>
         </div>
-      </div> <!-- 狀態欄容器結束 (修復了格式跑掉的問題點) -->
+      </div>
 
       <!-- 主要內容區 -->
       <div class="flex-1 overflow-y-auto p-5 pb-28 bg-black">
@@ -222,57 +221,49 @@
           <div id="expenses-list" class="space-y-2"></div>
         </div>
 
-        <!-- 健身 Tab (大改版 - 身體數據日誌 & 硬核訓練紀錄) -->
+        <!-- 健身 Tab -->
         <div id="tab-fitness" class="tab-content hidden space-y-6">
-          
-          <!-- 身體數據日誌 -->
-          <div class="bg-black brutal-border p-4">
-            <h3 class="text-[9px] font-black text-zinc-500 mb-3 tracking-[0.3em] uppercase">Body Metrics Log</h3>
-            <form onsubmit="addBodyMetric(event)" class="flex flex-col gap-2">
-               <div class="flex gap-2">
-                 <input id="metric-date" type="date" class="w-28 bg-transparent border border-zinc-800 px-2 py-1 text-[10px] text-white focus:border-white focus:outline-none rounded-none font-bold tracking-widest" required>
-                 <input id="metric-h" type="number" placeholder="H(cm)" step="0.1" class="flex-1 bg-transparent border border-zinc-800 px-2 py-1 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold" required>
-                 <input id="metric-w" type="number" placeholder="W(kg)" step="0.1" class="flex-1 bg-transparent border border-zinc-800 px-2 py-1 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold" required>
-                 <button type="submit" class="bg-white text-black px-3 font-black text-[9px] tracking-[0.2em] uppercase hover:bg-zinc-300">Log</button>
+          <div class="bg-black brutal-border p-5 text-center">
+            <h3 class="text-[10px] font-black text-zinc-500 mb-4 tracking-[0.3em] uppercase w-full text-center">Body Metrics Log</h3>
+            <form onsubmit="addBodyMetric(event)" class="flex flex-col items-center gap-3">
+               <input id="metric-date" type="date" class="w-full bg-transparent border-b border-zinc-800 px-2 py-2 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold tracking-widest text-center" required>
+               <div class="flex gap-3 w-full">
+                 <input id="metric-h" type="number" placeholder="HEIGHT (CM)" step="0.1" class="w-1/2 bg-transparent border-b border-zinc-800 px-2 py-2 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold text-center" required>
+                 <input id="metric-w" type="number" placeholder="WEIGHT (KG)" step="0.1" class="w-1/2 bg-transparent border-b border-zinc-800 px-2 py-2 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold text-center" required>
                </div>
+               <button type="submit" class="w-full bg-white text-black py-3 font-black text-[10px] tracking-[0.2em] uppercase hover:bg-zinc-300 mt-2 transition-colors">Log</button>
             </form>
-            <div id="metrics-list" class="space-y-2 mt-4 max-h-40 overflow-y-auto border-t border-zinc-900 pt-3 pr-1"></div>
+            <div id="metrics-list" class="space-y-3 mt-5 max-h-40 overflow-y-auto border-t border-zinc-900 pt-4"></div>
           </div>
 
-          <!-- 每日訓練目標 (週重置) -->
           <div>
             <div class="text-[9px] font-black text-zinc-600 tracking-[0.2em] text-center border-b border-zinc-900 pb-2 mt-4 mb-3">WEEKLY ROUTINE (RESETS MON)</div>
-            <div id="fitness-list" class="space-y-2"></div>
+            <div id="fitness-list" class="space-y-3"></div>
           </div>
 
-          <!-- 硬核訓練日誌 -->
-          <div class="bg-black brutal-border p-4 mt-6">
-            <h3 class="text-[9px] font-black text-red-600 mb-3 tracking-[0.3em] uppercase border-l-2 border-red-600 pl-2">Workout Log</h3>
-            <form onsubmit="addWorkout(event)" class="flex flex-col gap-2">
-               <div class="flex gap-2">
-                 <input id="wo-date" type="date" class="w-28 bg-transparent border border-zinc-800 px-2 py-1.5 text-[10px] text-white focus:border-white focus:outline-none rounded-none font-bold tracking-widest" required>
-                 <select id="wo-exercise-select" onchange="toggleCustomExercise()" class="flex-1 bg-transparent border border-zinc-800 px-2 py-1.5 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold uppercase tracking-wider">
-                    <!-- JS 動態寫入 -->
-                 </select>
-               </div>
-               <input id="wo-exercise-custom" type="text" placeholder="Custom exercise..." class="hidden w-full bg-transparent border border-zinc-800 px-3 py-1.5 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold uppercase tracking-wider">
-               <div class="flex gap-2">
-                 <div class="flex-1 flex items-center border border-zinc-800 px-2 bg-zinc-950">
-                   <input id="wo-sets" type="number" placeholder="0" class="w-full bg-transparent text-sm text-white focus:outline-none py-1.5 text-center font-black" required>
-                   <span class="text-[8px] text-zinc-500 font-black tracking-[0.2em] ml-1">SETS</span>
+          <div class="bg-black brutal-border p-5 mt-6 text-center">
+            <h3 class="text-[10px] font-black text-red-600 mb-4 tracking-[0.3em] uppercase w-full text-center">Workout Log</h3>
+            <form onsubmit="addWorkout(event)" class="flex flex-col items-center gap-3">
+               <input id="wo-date" type="date" class="w-full bg-transparent border-b border-zinc-800 px-2 py-2 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold tracking-widest text-center" required>
+               <select id="wo-exercise-select" onchange="toggleCustomExercise()" class="w-full bg-transparent border-b border-zinc-800 px-2 py-2 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold uppercase tracking-wider text-center" style="text-align-last: center;"></select>
+               <input id="wo-exercise-custom" type="text" placeholder="CUSTOM EXERCISE..." class="hidden w-full bg-transparent border-b border-zinc-800 px-2 py-2 text-xs text-white focus:border-white focus:outline-none rounded-none font-bold uppercase tracking-wider text-center">
+               <div class="flex gap-3 w-full mt-1">
+                 <div class="flex-1 flex flex-col items-center border border-zinc-800 p-2 bg-zinc-950">
+                   <span class="text-[8px] text-zinc-500 font-black tracking-[0.2em] mb-1">SETS</span>
+                   <input id="wo-sets" type="number" placeholder="0" class="w-full bg-transparent text-lg text-white focus:outline-none text-center font-black" required>
                  </div>
-                 <div class="flex-1 flex items-center border border-zinc-800 px-2 bg-zinc-950">
-                   <input id="wo-reps" type="number" placeholder="0" class="w-full bg-transparent text-sm text-white focus:outline-none py-1.5 text-center font-black" required>
-                   <span class="text-[8px] text-zinc-500 font-black tracking-[0.2em] ml-1">REPS</span>
+                 <div class="flex-1 flex flex-col items-center border border-zinc-800 p-2 bg-zinc-950">
+                   <span class="text-[8px] text-zinc-500 font-black tracking-[0.2em] mb-1">REPS</span>
+                   <input id="wo-reps" type="number" placeholder="0" class="w-full bg-transparent text-lg text-white focus:outline-none text-center font-black" required>
                  </div>
-                 <button type="submit" class="bg-red-600 text-white px-4 font-black text-[10px] tracking-[0.2em] uppercase hover:bg-red-500">Add</button>
                </div>
+               <button type="submit" class="w-full bg-red-600 text-white py-3 font-black text-[10px] tracking-[0.2em] uppercase hover:bg-red-500 mt-2 transition-colors">Add</button>
             </form>
-            <div id="workouts-list" class="space-y-2 mt-4 pt-3 border-t border-zinc-900"></div>
+            <div id="workouts-list" class="space-y-3 mt-5 pt-4 border-t border-zinc-900"></div>
           </div>
         </div>
 
-        <!-- 筆記與理財庫 Tab -->
+        <!-- 理財庫與筆記 Tab (支援多圖彩圖與滑動) -->
         <div id="tab-investment" class="tab-content hidden space-y-4">
           <form onsubmit="addNote(event)" class="bg-black brutal-border p-4 space-y-4">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
@@ -287,23 +278,24 @@
             
             <textarea id="note-text" placeholder="Details..." rows="3" class="w-full bg-transparent px-3 py-2 border border-zinc-800 focus:outline-none focus:border-white text-sm text-white placeholder-zinc-700 resize-none font-medium"></textarea>
 
-            <div id="note-media-preview-container" class="relative hidden mt-2 bg-zinc-950 border border-zinc-800 h-24 flex items-center justify-center overflow-hidden">
-              <span id="note-media-indicator" class="text-xs font-black tracking-widest text-zinc-500"></span>
-              <button type="button" onclick="clearNoteMedia()" class="absolute top-1 right-1 bg-black p-1 text-zinc-400 hover:text-white border border-zinc-800 z-10">
+            <!-- 預覽區塊：變成可以水平滑動的列表 -->
+            <div id="note-media-preview-container" class="hidden mt-2 bg-zinc-950 border border-zinc-800 h-24 flex items-center p-2 relative">
+              <div id="media-preview-list" class="flex gap-2 overflow-x-auto snap-x h-full w-full"></div>
+              <button type="button" onclick="clearNoteMedia()" class="absolute top-1 right-1 bg-black p-1 text-zinc-400 hover:text-white border border-zinc-800 z-10 shadow-lg">
                 <i data-lucide="x" class="w-3 h-3"></i>
               </button>
             </div>
 
             <div class="flex gap-2">
               <label class="flex-1 bg-transparent border border-zinc-800 text-zinc-400 text-[9px] font-black tracking-[0.1em] py-2 flex items-center justify-center cursor-pointer hover:bg-zinc-900 hover:text-white transition-colors uppercase">
-                <i data-lucide="paperclip" class="w-3 h-3 mr-2"></i> PDF / IMG
-                <input id="note-file" type="file" accept="image/*, application/pdf" onchange="handleMediaUpload(event)" class="hidden">
+                <i data-lucide="paperclip" class="w-3 h-3 mr-2"></i> MEDIA (MULTI)
+                <input id="note-file" type="file" accept="image/*, application/pdf" multiple onchange="handleMediaUpload(event)" class="hidden">
               </label>
               <button type="submit" class="flex-1 bg-white text-black text-[10px] font-black tracking-[0.2em] py-2 hover:bg-zinc-300 transition-all uppercase">
                 Save
               </button>
             </div>
-            <p class="text-[8px] text-zinc-600 tracking-widest text-center mt-1">GoodNotes 檔案請匯出為 PDF 上傳 (建議壓縮)</p>
+            <p class="text-[8px] text-zinc-600 tracking-widest text-center mt-1">內建智能壓縮引擎。可一次上傳多張照片或單個 PDF。</p>
           </form>
 
           <!-- 筆記庫視圖: 資料夾模式 -->
@@ -330,12 +322,11 @@
           </div>
         </div>
 
-      </div> <!-- 主要內容區結束 -->
+      </div>
 
       <!-- 底部導覽列 -->
       <div class="absolute bottom-0 left-0 right-0 bg-black border-t border-zinc-900 pb-safe z-20">
         <div class="flex justify-around items-center h-16 px-2">
-          <!-- 四個主按鈕，拔除未來藍圖 -->
           <button onclick="switchTab('tasks')" data-tab="tasks" class="nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-white">
             <i data-lucide="crosshair" class="w-5 h-5 mb-1"></i>
             <span class="text-[8px] font-bold tracking-[0.1em]">TASKS</span>
@@ -354,71 +345,51 @@
           </button>
         </div>
       </div>
-    </div> <!-- main-app 結束 -->
+    </div>
   </div>
 
   <script>
-    // ================= 全域狀態管理與 LocalStorage =================
+    // ================= 全域狀態管理 =================
     const todayStr = new Date().toLocaleDateString('en-CA');
     const currentMonthStr = todayStr.slice(0, 7); 
-    
-    // 使用新 key (v8)
     const STORAGE_KEY = 'vamp_xo_app_data_v8'; 
     
     const defaultState = {
       activeTab: 'tasks',
       baseBalance: 5000,
       tasks: [{ id: 1, text: 'Clean room', completed: false }],
-      countdowns: [],
-      monthlyTasks: [], 
-      transactions: [], 
-      lockedCategories: {},
-      lastFitnessReset: '', 
-      bodyMetrics: [], 
-      weeklyFitness: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day, idx) => ({
-        id: idx, day: day, goal: '', completed: false
-      })),
-      workouts: [], 
-      lastAllowancePromptMonth: '', 
-      noteCategories: ['一般筆記', '投資理財', '大學課程'], 
-      learningNotes: [], 
-      currentUploadedMedia: null
+      countdowns: [], monthlyTasks: [], transactions: [], lockedCategories: {},
+      lastFitnessReset: '', bodyMetrics: [], 
+      weeklyFitness: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day, idx) => ({ id: idx, day: day, goal: '', completed: false })),
+      workouts: [], lastAllowancePromptMonth: '', 
+      noteCategories: ['一般筆記', '投資理財', '大學課程'], learningNotes: []
     };
 
     let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultState;
-    state.currentUploadedMedia = null; 
+    
+    // 用陣列來存放多張圖片/媒體 (不在存檔裡，僅做當下上傳的暫存)
+    let currentUploadedMediaArray = []; 
+    
     let txType = 'expense'; 
     let currentFolder = null; 
 
-    const predefinedExercises = [
-      '伏地挺身 (Push-ups)', '仰臥起坐 (Sit-ups)', '深蹲 (Squats)', '引體向上 (Pull-ups)', 
-      '棒式 (Plank)', '啞鈴彎舉 (Dumbbell Curls)', '硬舉 (Deadlifts)', '臥推 (Bench Press)', 
-      '肩推 (Overhead Press)', '划船 (Rows)', '弓箭步 (Lunges)', '自訂 (Custom...)'
-    ];
-
-    const expenseCategories = [
-      { name: '飲食', color: '#ffffff' }, { name: '交通', color: '#a1a1aa' }, 
-      { name: '娛樂', color: '#dc2626' }, { name: '學習', color: '#52525b' }, { name: '其他', color: '#27272a' }
-    ];
+    const predefinedExercises = ['伏地挺身 (Push-ups)', '仰臥起坐 (Sit-ups)', '深蹲 (Squats)', '引體向上 (Pull-ups)', '棒式 (Plank)', '啞鈴彎舉 (Dumbbell Curls)', '硬舉 (Deadlifts)', '臥推 (Bench Press)', '肩推 (Overhead Press)', '划船 (Rows)', '弓箭步 (Lunges)', '自訂 (Custom...)'];
+    const expenseCategories = [{ name: '飲食', color: '#ffffff' }, { name: '交通', color: '#a1a1aa' }, { name: '娛樂', color: '#dc2626' }, { name: '學習', color: '#52525b' }, { name: '其他', color: '#27272a' }];
     const incomeCategories = [{ name: '餐食費' }, { name: '零用錢' }, { name: '薪水' }, { name: '其他' }];
 
     function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-    // 資料備份與還原功能
     function exportData() {
       const dataStr = JSON.stringify(state);
       const blob = new Blob([dataStr], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `VAMP_XO_BACKUP_${new Date().toLocaleDateString('en-CA')}.json`;
+      const a = document.createElement('a'); a.href = url; a.download = `VAMP_XO_BACKUP_${new Date().toLocaleDateString('en-CA')}.json`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
       showToast("DATA EXPORTED");
     }
 
     function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+      const file = event.target.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
@@ -427,8 +398,8 @@
             state = importedState; saveData();
             showToast("DATA RESTORED. RELOADING...");
             setTimeout(() => location.reload(), 1500);
-          } else { alert("Invalid backup file format."); }
-        } catch (err) { alert("Failed to read backup file."); }
+          } else { alert("Invalid backup format."); }
+        } catch (err) { alert("Failed to read backup."); }
       };
       reader.readAsText(file);
     }
@@ -441,13 +412,10 @@
 
     document.getElementById('wo-exercise-select').innerHTML = predefinedExercises.map(ex => `<option value="${ex}" class="bg-black">${ex}</option>`).join('');
 
-    // ================= 初始化與系統邏輯 =================
     function checkResets() {
-      const now = new Date();
-      let dayOfWeek = now.getDay(); if (dayOfWeek === 0) dayOfWeek = 7; 
+      const now = new Date(); let dayOfWeek = now.getDay(); if (dayOfWeek === 0) dayOfWeek = 7; 
       const monday = new Date(now); monday.setHours(0,0,0,0); monday.setDate(now.getDate() - dayOfWeek + 1);
       const currentMondayStr = monday.toLocaleDateString('en-CA');
-      
       if (state.lastFitnessReset !== currentMondayStr) {
         state.weeklyFitness.forEach(d => { d.goal = ''; d.completed = false; });
         state.lastFitnessReset = currentMondayStr;
@@ -456,9 +424,7 @@
     }
 
     function checkMonthlyAllowance() {
-      if (state.lastAllowancePromptMonth !== currentMonthStr) {
-        document.getElementById('allowance-modal').classList.remove('hidden');
-      }
+      if (state.lastAllowancePromptMonth !== currentMonthStr) { document.getElementById('allowance-modal').classList.remove('hidden'); }
     }
 
     function skipAllowance() {
@@ -468,9 +434,7 @@
 
     function addAllowance() {
       const amount = Number(document.getElementById('allowance-amount').value);
-      if (amount > 0) {
-        state.transactions.push({ id: Date.now(), type: 'income', desc: '每月餐食/零用', amount: amount, category: '餐食費', date: todayStr });
-      }
+      if (amount > 0) state.transactions.push({ id: Date.now(), type: 'income', desc: '每月餐食/零用', amount: amount, category: '餐食費', date: todayStr });
       state.lastAllowancePromptMonth = currentMonthStr; saveData();
       document.getElementById('allowance-modal').classList.add('hidden');
       if (state.activeTab === 'expenses') renderExpenses();
@@ -483,8 +447,7 @@
         if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel();
           const msg = new SpeechSynthesisUtterance("System initialized.");
-          msg.lang = 'en-GB'; msg.pitch = 0.4; msg.rate = 0.9;
-          window.speechSynthesis.speak(msg);
+          msg.lang = 'en-GB'; msg.pitch = 0.4; msg.rate = 0.9; window.speechSynthesis.speak(msg);
         }
       });
       document.getElementById('splash-screen').classList.add('hidden');
@@ -498,8 +461,7 @@
     function showToast(msg) {
       const toast = document.getElementById('toast-container');
       document.getElementById('toast-message').textContent = msg;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 5000);
+      toast.classList.remove('hidden'); setTimeout(() => toast.classList.add('hidden'), 5000);
     }
 
     function switchTab(tabId) {
@@ -509,9 +471,7 @@
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
       document.getElementById(`topbar-${tabId}`).classList.remove('hidden');
       document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.className = (btn.dataset.tab === tabId) 
-          ? `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-white`
-          : `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-zinc-700 hover:text-zinc-400`;
+        btn.className = (btn.dataset.tab === tabId) ? `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-white` : `nav-btn flex flex-col items-center justify-center w-full h-full focus:outline-none transition-colors text-zinc-700 hover:text-zinc-400`;
       });
       renderAll();
     }
@@ -524,342 +484,195 @@
       lucide.createIcons();
     }
 
-    // ================= 任務與倒數 =================
-    function getDaysLeft(targetDate) {
-      const todayObj = new Date(todayStr); const targetObj = new Date(targetDate);
-      return Math.ceil((targetObj - todayObj) / (1000 * 60 * 60 * 24));
-    }
-    function addCountdown(e) {
-      e.preventDefault();
-      const title = document.getElementById('new-cd-title').value, date = document.getElementById('new-cd-date').value;
-      if (!title.trim() || !date) return;
-      state.countdowns.push({ id: Date.now(), title, targetDate: date });
-      document.getElementById('new-cd-title').value = ''; saveData(); renderCountdowns();
-    }
+    /* === 任務區省略，保留原樣 === */
+    function getDaysLeft(targetDate) { const todayObj = new Date(todayStr); const targetObj = new Date(targetDate); return Math.ceil((targetObj - todayObj) / (1000 * 60 * 60 * 24)); }
+    function addCountdown(e) { e.preventDefault(); const title = document.getElementById('new-cd-title').value, date = document.getElementById('new-cd-date').value; if (!title.trim() || !date) return; state.countdowns.push({ id: Date.now(), title, targetDate: date }); document.getElementById('new-cd-title').value = ''; saveData(); renderCountdowns(); }
     function deleteCountdown(id) { state.countdowns = state.countdowns.filter(c => c.id !== id); saveData(); renderCountdowns(); }
     function renderCountdowns() {
       document.getElementById('countdowns-list').innerHTML = state.countdowns.map(c => {
         const days = getDaysLeft(c.targetDate); const isPast = days < 0;
-        return `
-          <div class="bg-black brutal-border p-3 relative overflow-hidden flex flex-col justify-between h-20 group">
-            <button onclick="deleteCountdown(${c.id})" class="absolute top-2 right-2 text-zinc-700 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="x" class="w-3 h-3"></i></button>
-            <div class="text-[9px] font-black text-zinc-500 tracking-widest uppercase truncate pr-4">${c.title}</div>
-            <div class="flex items-baseline gap-1">
-              <span class="text-2xl font-black ${isPast ? 'text-zinc-600' : 'text-white'}">${Math.abs(days)}</span>
-              <span class="text-[9px] text-zinc-600 font-bold tracking-widest">${isPast ? 'AGO' : 'DAYS'}</span>
-            </div>
-          </div>`;
-      }).join('');
-      lucide.createIcons();
+        return `<div class="bg-black brutal-border p-3 relative overflow-hidden flex flex-col justify-between h-20 group"><button onclick="deleteCountdown(${c.id})" class="absolute top-2 right-2 text-zinc-700 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="x" class="w-3 h-3"></i></button><div class="text-[9px] font-black text-zinc-500 tracking-widest uppercase truncate pr-4">${c.title}</div><div class="flex items-baseline gap-1"><span class="text-2xl font-black ${isPast ? 'text-zinc-600' : 'text-white'}">${Math.abs(days)}</span><span class="text-[9px] text-zinc-600 font-bold tracking-widest">${isPast ? 'AGO' : 'DAYS'}</span></div></div>`;
+      }).join(''); lucide.createIcons();
     }
-
-    function addMonthlyTask(e) {
-      e.preventDefault();
-      const title = document.getElementById('new-monthly-title').value, day = parseInt(document.getElementById('new-monthly-day').value);
-      if (!title.trim() || !day || day < 1 || day > 31) return;
-      state.monthlyTasks.push({ id: Date.now(), title, dayOfMonth: day });
-      document.getElementById('new-monthly-title').value = ''; document.getElementById('new-monthly-day').value = '';
-      saveData(); renderMonthly();
-    }
+    function addMonthlyTask(e) { e.preventDefault(); const title = document.getElementById('new-monthly-title').value, day = parseInt(document.getElementById('new-monthly-day').value); if (!title.trim() || !day || day < 1 || day > 31) return; state.monthlyTasks.push({ id: Date.now(), title, dayOfMonth: day }); document.getElementById('new-monthly-title').value = ''; document.getElementById('new-monthly-day').value = ''; saveData(); renderMonthly(); }
     function deleteMonthlyTask(id) { state.monthlyTasks = state.monthlyTasks.filter(m => m.id !== id); saveData(); renderMonthly(); }
-    function renderMonthly() {
-      document.getElementById('monthly-list').innerHTML = state.monthlyTasks.map(m => `
-        <div class="flex items-center justify-between p-2 bg-transparent brutal-border">
-          <div class="flex items-center gap-3">
-            <div class="bg-white text-black font-black text-[9px] px-2 py-1 tracking-widest">DAY ${m.dayOfMonth}</div>
-            <span class="text-xs text-white font-black tracking-widest uppercase">${m.title}</span>
-          </div>
-          <button onclick="deleteMonthlyTask(${m.id})" class="text-zinc-700 hover:text-red-600 mr-1"><i data-lucide="x" class="w-3 h-3"></i></button>
-        </div>`).join('');
-      lucide.createIcons();
-    }
-
-    function addTask(e) {
-      e.preventDefault();
-      const input = document.getElementById('new-task-input');
-      if (!input.value.trim()) return;
-      state.tasks.push({ id: Date.now(), text: input.value, completed: false });
-      input.value = ''; saveData(); renderTasks();
-    }
-    function toggleTask(id) {
-      const task = state.tasks.find(t => t.id === id); if(task) task.completed = !task.completed; saveData(); renderTasks();
-    }
+    function renderMonthly() { document.getElementById('monthly-list').innerHTML = state.monthlyTasks.map(m => `<div class="flex items-center justify-between p-2 bg-transparent brutal-border"><div class="flex items-center gap-3"><div class="bg-white text-black font-black text-[9px] px-2 py-1 tracking-widest">DAY ${m.dayOfMonth}</div><span class="text-xs text-white font-black tracking-widest uppercase">${m.title}</span></div><button onclick="deleteMonthlyTask(${m.id})" class="text-zinc-700 hover:text-red-600 mr-1"><i data-lucide="x" class="w-3 h-3"></i></button></div>`).join(''); lucide.createIcons(); }
+    function addTask(e) { e.preventDefault(); const input = document.getElementById('new-task-input'); if (!input.value.trim()) return; state.tasks.push({ id: Date.now(), text: input.value, completed: false }); input.value = ''; saveData(); renderTasks(); }
+    function toggleTask(id) { const task = state.tasks.find(t => t.id === id); if(task) task.completed = !task.completed; saveData(); renderTasks(); }
     function deleteTask(id) { state.tasks = state.tasks.filter(t => t.id !== id); saveData(); renderTasks(); }
     function renderTasks() {
       document.getElementById('pending-tasks-count').textContent = state.tasks.filter(t => !t.completed).length;
-      document.getElementById('tasks-list').innerHTML = state.tasks.map(task => `
-        <div class="flex items-center justify-between p-3 bg-transparent border-b border-zinc-900">
-          <button onclick="toggleTask(${task.id})" class="mr-3 focus:outline-none">
-            ${task.completed ? '<i data-lucide="check-square" class="w-4 h-4 text-zinc-700"></i>' : '<i data-lucide="square" class="w-4 h-4 text-zinc-400"></i>'}
-          </button>
-          <span class="flex-1 text-xs font-bold tracking-wider uppercase ${task.completed ? 'line-through text-zinc-700' : 'text-zinc-200'}">${task.text}</span>
-          <button onclick="deleteTask(${task.id})" class="text-zinc-800 hover:text-red-600 transition-colors focus:outline-none"><i data-lucide="x" class="w-3 h-3"></i></button>
-        </div>`).join('');
-      lucide.createIcons();
+      document.getElementById('tasks-list').innerHTML = state.tasks.map(task => `<div class="flex items-center justify-between p-3 bg-transparent border-b border-zinc-900"><button onclick="toggleTask(${task.id})" class="mr-3 focus:outline-none">${task.completed ? '<i data-lucide="check-square" class="w-4 h-4 text-zinc-700"></i>' : '<i data-lucide="square" class="w-4 h-4 text-zinc-400"></i>'}</button><span class="flex-1 text-xs font-bold tracking-wider uppercase ${task.completed ? 'line-through text-zinc-700' : 'text-zinc-200'}">${task.text}</span><button onclick="deleteTask(${task.id})" class="text-zinc-800 hover:text-red-600 transition-colors focus:outline-none"><i data-lucide="x" class="w-3 h-3"></i></button></div>`).join(''); lucide.createIcons();
     }
 
-    // ================= 記帳防護與圖表邏輯 =================
-    function getTotalFunds() {
-      const inc = state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0);
-      return state.baseBalance + inc;
-    }
+    /* === 記帳與健身區省略細部，保留原樣 === */
+    function getTotalFunds() { return state.baseBalance + state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0); }
     function setTxType(type) {
       txType = type;
       const btnExp = document.getElementById('btn-type-expense'), btnInc = document.getElementById('btn-type-income'), select = document.getElementById('exp-cat');
       if (type === 'expense') {
-        btnExp.className = "flex-1 border border-white bg-white text-black text-[10px] font-black py-2 tracking-widest uppercase transition-all";
-        btnInc.className = "flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all hover:text-white";
+        btnExp.className = "flex-1 border border-white bg-white text-black text-[10px] font-black py-2 tracking-widest uppercase transition-all"; btnInc.className = "flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all hover:text-white";
         select.innerHTML = expenseCategories.map(c => `<option value="${c.name}" class="bg-black">${c.name}</option>`).join('');
       } else {
-        btnInc.className = "flex-1 border border-white bg-white text-black text-[10px] font-black py-2 tracking-widest uppercase transition-all";
-        btnExp.className = "flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all hover:text-white";
+        btnInc.className = "flex-1 border border-white bg-white text-black text-[10px] font-black py-2 tracking-widest uppercase transition-all"; btnExp.className = "flex-1 border border-zinc-800 text-zinc-500 text-[10px] font-black py-2 tracking-widest uppercase transition-all hover:text-white";
         select.innerHTML = incomeCategories.map(c => `<option value="${c.name}" class="bg-black">${c.name}</option>`).join('');
-      }
-      checkCategoryLock();
+      } checkCategoryLock();
     }
-    function toggleBudgetEdit() {
-      document.getElementById('budget-input').value = state.baseBalance;
-      document.getElementById('budget-edit-mode').classList.remove('hidden');
-      document.getElementById('budget-display-mode').classList.add('hidden');
-    }
-    function saveBudget() {
-      state.baseBalance = Number(document.getElementById('budget-input').value); saveData();
-      document.getElementById('budget-edit-mode').classList.add('hidden');
-      document.getElementById('budget-display-mode').classList.remove('hidden');
-      renderExpenses();
-    }
+    function toggleBudgetEdit() { document.getElementById('budget-input').value = state.baseBalance; document.getElementById('budget-edit-mode').classList.remove('hidden'); document.getElementById('budget-display-mode').classList.add('hidden'); }
+    function saveBudget() { state.baseBalance = Number(document.getElementById('budget-input').value); saveData(); document.getElementById('budget-edit-mode').classList.add('hidden'); document.getElementById('budget-display-mode').classList.remove('hidden'); renderExpenses(); }
     function checkCategoryLock() {
-      const cat = document.getElementById('exp-cat').value, btn = document.getElementById('exp-submit-btn');
-      const inputs = document.querySelectorAll('.exp-input'), warning = document.getElementById('expense-lock-warning');
-      if (txType === 'income') {
-        btn.disabled = false; btn.textContent = 'Confirm';
-        btn.className = "w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase";
-        inputs.forEach(i => i.disabled = false); warning.classList.add('hidden'); return false;
-      }
-      const limitAmount = getTotalFunds() * 0.3;
-      const catSpent = state.transactions.filter(t => t.type === 'expense' && t.category === cat).reduce((s, ex) => s + ex.amount, 0);
+      const cat = document.getElementById('exp-cat').value, btn = document.getElementById('exp-submit-btn'), inputs = document.querySelectorAll('.exp-input'), warning = document.getElementById('expense-lock-warning');
+      if (txType === 'income') { btn.disabled = false; btn.textContent = 'Confirm'; btn.className = "w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase"; inputs.forEach(i => i.disabled = false); warning.classList.add('hidden'); return false; }
+      const limitAmount = getTotalFunds() * 0.3; const catSpent = state.transactions.filter(t => t.type === 'expense' && t.category === cat).reduce((s, ex) => s + ex.amount, 0);
       if (state.lockedCategories[cat] && catSpent < limitAmount) { delete state.lockedCategories[cat]; saveData(); }
-
-      const lockDateStr = state.lockedCategories[cat];
-      let isLocked = lockDateStr && new Date(todayStr) < new Date(lockDateStr);
-      if (isLocked) {
-        btn.disabled = true; btn.textContent = 'LOCKED';
-        btn.className = "w-full font-black py-3 bg-zinc-900 text-zinc-600 tracking-[0.3em] mt-2 uppercase text-[10px] cursor-not-allowed";
-        inputs.forEach(i => i.disabled = true); document.getElementById('exp-cat').disabled = false; 
-        warning.classList.remove('hidden'); document.getElementById('lock-warning-cat').textContent = cat; document.getElementById('lock-warning-date').textContent = lockDateStr;
-      } else {
-        btn.disabled = false; btn.textContent = 'Confirm';
-        btn.className = "w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase";
-        inputs.forEach(i => i.disabled = false); warning.classList.add('hidden');
-      }
+      const lockDateStr = state.lockedCategories[cat]; let isLocked = lockDateStr && new Date(todayStr) < new Date(lockDateStr);
+      if (isLocked) { btn.disabled = true; btn.textContent = 'LOCKED'; btn.className = "w-full font-black py-3 bg-zinc-900 text-zinc-600 tracking-[0.3em] mt-2 uppercase text-[10px] cursor-not-allowed"; inputs.forEach(i => i.disabled = true); document.getElementById('exp-cat').disabled = false; warning.classList.remove('hidden'); document.getElementById('lock-warning-cat').textContent = cat; document.getElementById('lock-warning-date').textContent = lockDateStr; } 
+      else { btn.disabled = false; btn.textContent = 'Confirm'; btn.className = "w-full bg-white text-black font-black py-3 text-[10px] tracking-[0.3em] mt-2 hover:bg-zinc-300 transition-colors uppercase"; inputs.forEach(i => i.disabled = false); warning.classList.add('hidden'); }
       return isLocked;
     }
     function addTransaction(e) {
-      e.preventDefault();
-      if (txType === 'expense' && checkCategoryLock()) return;
+      e.preventDefault(); if (txType === 'expense' && checkCategoryLock()) return;
       const desc = document.getElementById('exp-desc').value, amount = Number(document.getElementById('exp-amount').value), cat = document.getElementById('exp-cat').value, date = document.getElementById('exp-date').value;
       state.transactions.push({ id: Date.now(), type: txType, desc, amount, category: cat, date });
       if (txType === 'expense') {
-        const limitAmount = getTotalFunds() * 0.3;
-        const catSpent = state.transactions.filter(t => t.type === 'expense' && t.category === cat).reduce((s, ex) => s + ex.amount, 0);
+        const limitAmount = getTotalFunds() * 0.3; const catSpent = state.transactions.filter(t => t.type === 'expense' && t.category === cat).reduce((s, ex) => s + ex.amount, 0);
         if (catSpent >= limitAmount && !state.lockedCategories[cat]) {
           const unlockDate = new Date(todayStr); unlockDate.setDate(unlockDate.getDate() + 7);
-          state.lockedCategories[cat] = unlockDate.toISOString().split('T')[0];
-          showToast(`LOCKDOWN: ${cat} limit exceeded.`);
+          state.lockedCategories[cat] = unlockDate.toISOString().split('T')[0]; showToast(`LOCKDOWN: ${cat} limit exceeded.`);
         }
-      }
-      saveData(); document.getElementById('exp-desc').value = ''; document.getElementById('exp-amount').value = ''; renderExpenses();
+      } saveData(); document.getElementById('exp-desc').value = ''; document.getElementById('exp-amount').value = ''; renderExpenses();
     }
     function deleteTransaction(id) { state.transactions = state.transactions.filter(t => t.id !== id); saveData(); renderExpenses(); }
-
     function renderExpenses() {
-      const totalFunds = getTotalFunds();
-      document.getElementById('budget-display').innerHTML = `$${state.baseBalance}`;
-      document.getElementById('expense-limit-display').innerText = `LIMIT: 30% ($${Math.round(totalFunds * 0.3)})`;
-
-      const expTot = state.transactions.filter(t => t.type === 'expense').reduce((s, i) => s + i.amount, 0);
-      const incTot = state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0);
-      const remaining = totalFunds - expTot;
+      const totalFunds = getTotalFunds(); document.getElementById('budget-display').innerHTML = `$${state.baseBalance}`; document.getElementById('expense-limit-display').innerText = `LIMIT: 30% ($${Math.round(totalFunds * 0.3)})`;
+      const expTot = state.transactions.filter(t => t.type === 'expense').reduce((s, i) => s + i.amount, 0), incTot = state.transactions.filter(t => t.type === 'income').reduce((s, i) => s + i.amount, 0);
+      const remaining = totalFunds - expTot; document.getElementById('remaining-display').textContent = `$${remaining}`; document.getElementById('remaining-display').className = `text-3xl font-black tracking-tight ${remaining < 0 ? 'text-red-600' : 'text-white'}`;
+      document.getElementById('total-spent-display').textContent = `$${expTot}`; document.getElementById('total-income-display').textContent = `$${incTot}`; checkCategoryLock();
       
-      const remainDisp = document.getElementById('remaining-display');
-      remainDisp.textContent = `$${remaining}`;
-      remainDisp.className = `text-3xl font-black tracking-tight ${remaining < 0 ? 'text-red-600' : 'text-white'}`;
-      document.getElementById('total-spent-display').textContent = `$${expTot}`;
-      document.getElementById('total-income-display').textContent = `$${incTot}`;
-      checkCategoryLock();
-
-      let cumulativePercent = 0;
-      const expOnly = state.transactions.filter(t => t.type === 'expense');
-      const groupedData = expenseCategories.map(cat => {
-        const items = expOnly.filter(e => e.category === cat.name);
-        const total = items.reduce((sum, e) => sum + e.amount, 0);
-        const detailsMap = {}; items.forEach(i => { detailsMap[i.desc] = (detailsMap[i.desc] || 0) + i.amount; });
-        return { ...cat, total, items: detailsMap };
-      }).filter(g => g.total > 0);
-
+      let cumulativePercent = 0; const expOnly = state.transactions.filter(t => t.type === 'expense');
+      const groupedData = expenseCategories.map(cat => { const items = expOnly.filter(e => e.category === cat.name); const total = items.reduce((sum, e) => sum + e.amount, 0); const detailsMap = {}; items.forEach(i => { detailsMap[i.desc] = (detailsMap[i.desc] || 0) + i.amount; }); return { ...cat, total, items: detailsMap }; }).filter(g => g.total > 0);
       const chartContainer = document.getElementById('pie-chart-container');
-      if (expTot === 0) {
-        chartContainer.innerHTML = `<div class="mx-auto w-24 h-24 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-700 text-[9px] font-black tracking-widest">N/A</div>`;
-      } else {
-        const gradientStops = groupedData.map(g => {
-          const pct = (g.total / expTot) * 100; const start = cumulativePercent; cumulativePercent += pct;
-          return `${g.color} ${start}% ${cumulativePercent}%`;
-        }).join(', ');
-
-        const legendHtml = groupedData.map(g => `
-          <div class="mb-3">
-            <div class="flex items-center justify-between text-[10px]">
-              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-none" style="background-color: ${g.color};"></span><span class="text-zinc-300 font-black uppercase tracking-widest">${g.name}</span></div>
-              <span class="font-black text-white">${Math.round((g.total / expTot) * 100)}% <span class="text-zinc-600 ml-1">($${g.total})</span></span>
-            </div>
-            ${Object.entries(g.items).map(([desc, amt]) => `<div class="flex justify-between text-[9px] text-zinc-500 pl-4 mt-1 uppercase font-bold tracking-wider"><span class="truncate pr-2">↳ ${desc}</span><span>$${amt}</span></div>`).join('')}
-          </div>`).join('');
+      if (expTot === 0) { chartContainer.innerHTML = `<div class="mx-auto w-24 h-24 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-700 text-[9px] font-black tracking-widest">N/A</div>`; } 
+      else {
+        const gradientStops = groupedData.map(g => { const pct = (g.total / expTot) * 100; const start = cumulativePercent; cumulativePercent += pct; return `${g.color} ${start}% ${cumulativePercent}%`; }).join(', ');
+        const legendHtml = groupedData.map(g => `<div class="mb-3"><div class="flex items-center justify-between text-[10px]"><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-none" style="background-color: ${g.color};"></span><span class="text-zinc-300 font-black uppercase tracking-widest">${g.name}</span></div><span class="font-black text-white">${Math.round((g.total / expTot) * 100)}% <span class="text-zinc-600 ml-1">($${g.total})</span></span></div>${Object.entries(g.items).map(([desc, amt]) => `<div class="flex justify-between text-[9px] text-zinc-500 pl-4 mt-1 uppercase font-bold tracking-wider"><span class="truncate pr-2">↳ ${desc}</span><span>$${amt}</span></div>`).join('')}</div>`).join('');
         chartContainer.innerHTML = `<div class="w-24 h-24 rounded-full flex-shrink-0 border border-zinc-800 mx-auto" style="background: conic-gradient(${gradientStops})"></div><div class="w-full space-y-1 mt-4 border-t border-zinc-900 pt-4">${legendHtml}</div>`;
       }
-
       const sortedTx = [...state.transactions].sort((a,b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
       document.getElementById('expenses-list').innerHTML = sortedTx.map(tx => {
-        if (tx.type === 'income') return `
-          <div class="flex items-center justify-between p-3 bg-black brutal-border border-l-2 border-l-green-500">
-            <div><div class="text-green-500 text-xs font-bold tracking-widest uppercase">${tx.desc}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div></div>
-            <div class="flex items-center gap-3"><span class="text-green-500 text-sm font-black tracking-wider">+$${tx.amount}</span><button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></div>
-          </div>`;
+        if (tx.type === 'income') return `<div class="flex items-center justify-between p-3 bg-black brutal-border border-l-2 border-l-green-500"><div><div class="text-green-500 text-xs font-bold tracking-widest uppercase">${tx.desc}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div></div><div class="flex items-center gap-3"><span class="text-green-500 text-sm font-black tracking-wider">+$${tx.amount}</span><button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></div></div>`;
         const catColor = expenseCategories.find(c => c.name === tx.category)?.color || '#ccc';
-        return `
-          <div class="flex items-center justify-between p-3 bg-black brutal-border">
-            <div class="flex items-center gap-3"><span class="w-1 h-5" style="background-color: ${catColor};"></span><div><div class="text-white text-xs font-bold tracking-widest uppercase">${tx.desc}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div></div></div>
-            <div class="flex items-center gap-3"><span class="text-white text-sm font-black tracking-wider">-$${tx.amount}</span><button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></div>
-          </div>`;
-      }).join('');
-      lucide.createIcons();
+        return `<div class="flex items-center justify-between p-3 bg-black brutal-border"><div class="flex items-center gap-3"><span class="w-1 h-5" style="background-color: ${catColor};"></span><div><div class="text-white text-xs font-bold tracking-widest uppercase">${tx.desc}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-black uppercase">${tx.category} / ${tx.date}</div></div></div><div class="flex items-center gap-3"><span class="text-white text-sm font-black tracking-wider">-$${tx.amount}</span><button onclick="deleteTransaction(${tx.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></div></div>`;
+      }).join(''); lucide.createIcons();
     }
 
-    // ================= 健身 (Body Metrics & Workouts) =================
-    function addBodyMetric(e) {
-      e.preventDefault();
-      const date = document.getElementById('metric-date').value, h = Number(document.getElementById('metric-h').value), w = Number(document.getElementById('metric-w').value);
-      if(!date || !h || !w) return;
-      const bmi = (w / Math.pow(h / 100, 2)).toFixed(1);
-      state.bodyMetrics.unshift({ id: Date.now(), date, h, w, bmi });
-      state.bmiHeight = h; state.bmiWeight = w;
-      document.getElementById('metric-h').value = ''; document.getElementById('metric-w').value = '';
-      saveData(); renderFitness();
-    }
-
+    function addBodyMetric(e) { e.preventDefault(); const date = document.getElementById('metric-date').value, h = Number(document.getElementById('metric-h').value), w = Number(document.getElementById('metric-w').value); if(!date || !h || !w) return; const bmi = (w / Math.pow(h / 100, 2)).toFixed(1); state.bodyMetrics.unshift({ id: Date.now(), date, h, w, bmi }); state.bmiHeight = h; state.bmiWeight = w; document.getElementById('metric-h').value = ''; document.getElementById('metric-w').value = ''; saveData(); renderFitness(); }
     function deleteBodyMetric(id) { state.bodyMetrics = state.bodyMetrics.filter(m => m.id !== id); saveData(); renderFitness(); }
-
-    function updateFitnessInput(id, field, value) {
-      const day = state.weeklyFitness.find(d => d.id === id); if(day) day[field] = value; saveData();
-      if(field === 'completed') renderFitness(); 
-    }
-
-    function toggleCustomExercise() {
-      const select = document.getElementById('wo-exercise-select'), customInput = document.getElementById('wo-exercise-custom');
-      if (select.value === '自訂 (Custom...)') { select.classList.add('hidden'); customInput.classList.remove('hidden'); customInput.required = true; }
-      else { select.classList.remove('hidden'); customInput.classList.add('hidden'); customInput.required = false; customInput.value = ''; }
-    }
-
-    function addWorkout(e) {
-      e.preventDefault();
-      const date = document.getElementById('wo-date').value, select = document.getElementById('wo-exercise-select'), customInput = document.getElementById('wo-exercise-custom');
-      let exercise = select.value === '自訂 (Custom...)' ? customInput.value : select.value;
-      const sets = document.getElementById('wo-sets').value, reps = document.getElementById('wo-reps').value;
-      
-      if(!exercise || !sets || !reps) return;
-      state.workouts.unshift({ id: Date.now(), date, exercise, sets, reps });
-      document.getElementById('wo-sets').value=''; document.getElementById('wo-reps').value='';
-      if(select.value === '自訂 (Custom...)') { select.value = predefinedExercises[0]; toggleCustomExercise(); }
-      saveData(); renderFitness();
-    }
-    
+    function updateFitnessInput(id, field, value) { const day = state.weeklyFitness.find(d => d.id === id); if(day) day[field] = value; saveData(); if(field === 'completed') renderFitness(); }
+    function toggleCustomExercise() { const select = document.getElementById('wo-exercise-select'), customInput = document.getElementById('wo-exercise-custom'); if (select.value === '自訂 (Custom...)') { select.classList.add('hidden'); customInput.classList.remove('hidden'); customInput.required = true; } else { select.classList.remove('hidden'); customInput.classList.add('hidden'); customInput.required = false; customInput.value = ''; } }
+    function addWorkout(e) { e.preventDefault(); const date = document.getElementById('wo-date').value, select = document.getElementById('wo-exercise-select'), customInput = document.getElementById('wo-exercise-custom'); let exercise = select.value === '自訂 (Custom...)' ? customInput.value : select.value; const sets = document.getElementById('wo-sets').value, reps = document.getElementById('wo-reps').value; if(!exercise || !sets || !reps) return; state.workouts.unshift({ id: Date.now(), date, exercise, sets, reps }); document.getElementById('wo-sets').value=''; document.getElementById('wo-reps').value=''; if(select.value === '自訂 (Custom...)') { select.value = predefinedExercises[0]; toggleCustomExercise(); } saveData(); renderFitness(); }
     function deleteWorkout(id) { state.workouts = state.workouts.filter(w => w.id !== id); saveData(); renderFitness(); }
-
     function renderFitness() {
       const metricsList = document.getElementById('metrics-list');
-      if (state.bodyMetrics.length === 0) {
-        metricsList.innerHTML = `<div class="text-center text-zinc-700 text-[9px] font-black tracking-[0.2em] py-4">NO DATA</div>`;
-      } else {
-        metricsList.innerHTML = state.bodyMetrics.map(m => `
-          <div class="flex justify-between items-center bg-transparent border-b border-zinc-900 py-2">
-            <div>
-              <span class="text-[10px] text-zinc-500 font-bold tracking-widest mr-2">${m.date}</span>
-              <span class="text-xs text-white font-black tracking-widest">H: ${m.h} <span class="text-zinc-600">|</span> W: ${m.w}</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-sm font-black text-rose-600 tracking-wider">BMI ${m.bmi}</span>
-              <button onclick="deleteBodyMetric(${m.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-3 h-3"></i></button>
-            </div>
-          </div>`).join('');
-      }
-
+      if (state.bodyMetrics.length === 0) { metricsList.innerHTML = `<div class="text-center text-zinc-700 text-[9px] font-black tracking-[0.2em] py-4">NO DATA</div>`; } 
+      else { metricsList.innerHTML = state.bodyMetrics.map(m => `<div class="flex flex-col items-center justify-center bg-transparent border-b border-zinc-900 pb-3 mb-2"><div class="text-[10px] text-zinc-500 font-bold tracking-widest mb-1">${m.date}</div><div class="text-xs text-white font-black tracking-widest mb-1">H: ${m.h} <span class="text-zinc-600 mx-1">|</span> W: ${m.w}</div><div class="flex items-center gap-3"><span class="text-sm font-black text-rose-600 tracking-wider">BMI ${m.bmi}</span><button onclick="deleteBodyMetric(${m.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button></div></div>`).join(''); }
+      
       document.getElementById('fitness-list').innerHTML = state.weeklyFitness.map(day => {
-        if (!day.goal) {
-          return `
-            <div class="p-3 brutal-border bg-black">
-              <div class="text-[9px] font-black text-zinc-600 tracking-widest mb-2">${day.day}</div>
-              <input type="text" placeholder="Objective (e.g. Leg Day)" class="w-full bg-transparent px-2 py-1 text-xs border-b border-zinc-800 text-white placeholder-zinc-800 font-bold focus:outline-none focus:border-white rounded-none uppercase tracking-wider"
-                onblur="updateFitnessInput(${day.id}, 'goal', this.value)"
-                onkeydown="if(event.key === 'Enter'){ event.preventDefault(); updateFitnessInput(${day.id}, 'goal', this.value); document.activeElement.blur(); }">
-            </div>`;
-        }
-        return `
-          <div class="p-3 brutal-border ${day.completed ? 'bg-zinc-950 opacity-40' : 'bg-black'}">
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-[10px] font-black tracking-widest ${day.completed ? 'text-zinc-600' : 'text-zinc-400'}">${day.day}</span>
-              ${day.completed ? '<span class="text-[8px] text-black bg-white font-black tracking-widest px-1.5 py-0.5 uppercase">Cleared</span>' : ''}
-            </div>
-            <div class="flex justify-between items-center">
-               <div class="text-white font-black tracking-widest text-xs uppercase ${day.completed ? 'line-through text-zinc-600' : ''}">${day.goal}</div>
-               <button onclick="updateFitnessInput(${day.id}, 'completed', ${!day.completed})" class="text-[9px] font-black tracking-[0.3em] transition-colors uppercase ${day.completed ? 'text-zinc-600' : 'text-red-600 hover:text-white'}">
-                 ${day.completed ? 'Undo' : 'Verify'}
-               </button>
-            </div>
-          </div>`;
+        if (!day.goal) return `<div class="p-4 brutal-border bg-black flex flex-col items-center text-center"><div class="text-[10px] font-black text-zinc-500 tracking-widest mb-2">${day.day}</div><input type="text" placeholder="Objective (e.g. Leg Day)" class="w-full bg-transparent px-2 py-2 text-xs border-b border-zinc-800 text-white placeholder-zinc-800 font-bold focus:outline-none focus:border-white rounded-none uppercase tracking-wider text-center" onblur="updateFitnessInput(${day.id}, 'goal', this.value)" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); updateFitnessInput(${day.id}, 'goal', this.value); document.activeElement.blur(); }"></div>`;
+        return `<div class="p-4 brutal-border ${day.completed ? 'bg-zinc-950 opacity-40' : 'bg-black'} flex flex-col items-center text-center"><div class="text-[10px] font-black tracking-widest mb-2 ${day.completed ? 'text-zinc-600' : 'text-zinc-400'}">${day.day}</div><div class="text-white font-black tracking-widest text-sm uppercase mb-3 ${day.completed ? 'line-through text-zinc-600' : ''}">${day.goal}</div><div class="flex items-center gap-4"><button onclick="updateFitnessInput(${day.id}, 'completed', ${!day.completed})" class="text-[10px] font-black tracking-[0.3em] transition-colors uppercase ${day.completed ? 'text-zinc-600' : 'text-red-600 hover:text-white'}">${day.completed ? 'Undo' : 'Verify'}</button>${day.completed ? `<button onclick="clearFitnessDay(${day.id})" class="text-zinc-700 hover:text-red-600 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}</div>${day.completed ? '<div class="mt-3 text-[8px] text-black bg-white font-black tracking-widest px-2 py-1 uppercase">Cleared</div>' : ''}</div>`;
       }).join('');
-
+      
       const woList = document.getElementById('workouts-list');
-      if (state.workouts.length === 0) {
-        woList.innerHTML = `<div class="text-center text-zinc-700 text-[9px] font-black tracking-[0.2em] py-4">NO WORKOUTS RECORDED</div>`;
-      } else {
-        woList.innerHTML = state.workouts.map(w => `
-          <div class="flex items-center justify-between p-3 bg-black border-b border-zinc-900 group">
-            <div><div class="text-white text-xs font-black tracking-widest uppercase">${w.exercise}</div><div class="text-[9px] text-zinc-600 mt-0.5 tracking-[0.2em] font-bold uppercase">${w.date}</div></div>
-            <div class="flex items-center gap-4">
-              <div class="text-right">
-                <span class="text-white text-sm font-black tracking-wider">${w.sets}</span> <span class="text-[9px] text-zinc-500 font-black tracking-widest">SETS</span>
-                <span class="text-zinc-700 mx-1">x</span>
-                <span class="text-white text-sm font-black tracking-wider">${w.reps}</span> <span class="text-[9px] text-zinc-500 font-black tracking-widest">REPS</span>
-              </div>
-              <button onclick="deleteWorkout(${w.id})" class="text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-          </div>`).join('');
-      }
+      if (state.workouts.length === 0) { woList.innerHTML = `<div class="text-center text-zinc-700 text-[9px] font-black tracking-[0.2em] py-4">NO WORKOUTS RECORDED</div>`; } 
+      else { woList.innerHTML = state.workouts.map(w => `<div class="flex flex-col items-center justify-center p-4 bg-black border-b border-zinc-900 group relative"><button onclick="deleteWorkout(${w.id})" class="absolute top-2 right-2 text-zinc-800 hover:text-red-600"><i data-lucide="x" class="w-4 h-4"></i></button><div class="text-[10px] text-zinc-600 font-bold tracking-[0.2em] mb-1">${w.date}</div><div class="text-white text-sm font-black tracking-widest uppercase mb-2 text-center">${w.exercise}</div><div class="flex items-center justify-center gap-2"><span class="text-white text-lg font-black tracking-wider">${w.sets}</span> <span class="text-[9px] text-zinc-500 font-black tracking-widest">SETS</span> <span class="text-zinc-700 mx-2">x</span> <span class="text-white text-lg font-black tracking-wider">${w.reps}</span> <span class="text-[9px] text-zinc-500 font-black tracking-widest">REPS</span></div></div>`).join(''); }
       lucide.createIcons();
     }
 
-    // ================= 筆記分類與 PDF (GoodNotes) =================
+
+    // ================= 筆記分類與多圖上傳核心邏輯 (彩圖 + 壓縮引擎 + 滑動) =================
+
+    // 負責壓縮圖片的黑科技引擎，將原圖壓到極小容量 (這樣 localStorage 就可以塞很多張)
+    function compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width, height = img.height;
+            const MAX_SIZE = 1000; // 最大解析度限制
+            if (width > height && width > MAX_SIZE) {
+              height *= MAX_SIZE / width; width = MAX_SIZE;
+            } else if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height; height = MAX_SIZE;
+            }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            // 將圖片壓縮成 0.6 畫質的 JPEG (容量極小)
+            resolve(canvas.toDataURL('image/jpeg', 0.6)); 
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
     function updateCategoryDropdowns() {
       const selectForm = document.getElementById('note-cat-select');
       selectForm.innerHTML = state.noteCategories.map(c => `<option value="${c}" class="bg-black">${c}</option>`).join('');
     }
 
-    function handleMediaUpload(e) {
-      const file = e.target.files[0];
-      if (file) {
-        if(file.size > 4000000) { alert("File too large. Max ~4MB (Compress PDF first)."); return; }
-        const isPdf = file.type === 'application/pdf';
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          state.currentUploadedMedia = { data: event.target.result, type: isPdf ? 'pdf' : 'image' };
-          const container = document.getElementById('note-media-preview-container'), indicator = document.getElementById('note-media-indicator');
-          container.classList.remove('hidden');
-          if(isPdf) { indicator.textContent = "PDF FILE LOADED"; indicator.className = "text-xs font-black tracking-widest text-red-500"; }
-          else { indicator.textContent = "IMAGE LOADED"; indicator.className = "text-xs font-black tracking-widest text-zinc-500"; }
-        };
-        reader.readAsDataURL(file);
+    // 處理多檔案上傳
+    async function handleMediaUpload(e) {
+      const files = e.target.files;
+      if (!files.length) return;
+      
+      currentUploadedMediaArray = []; // 清空暫存
+      const container = document.getElementById('note-media-preview-container');
+      const list = document.getElementById('media-preview-list');
+      container.classList.remove('hidden');
+      list.innerHTML = `<span class="text-xs font-black text-red-500 animate-pulse">PROCESSING...</span>`;
+
+      for (let file of files) {
+        if (file.size > 8000000) { alert(`檔案 ${file.name} 過大(>8MB)，已略過。`); continue; }
+        
+        if (file.type === 'application/pdf') {
+          const dataUrl = await readFileAsDataURL(file);
+          currentUploadedMediaArray.push({ data: dataUrl, type: 'pdf' });
+        } else if (file.type.startsWith('image/')) {
+          // 使用壓縮引擎處理圖片
+          const compressedDataUrl = await compressImage(file);
+          currentUploadedMediaArray.push({ data: compressedDataUrl, type: 'image' });
+        }
       }
+      renderNoteMediaPreview();
     }
-    function clearNoteMedia() { state.currentUploadedMedia = null; document.getElementById('note-file').value = ''; document.getElementById('note-media-preview-container').classList.add('hidden'); }
+
+    function renderNoteMediaPreview() {
+      const list = document.getElementById('media-preview-list');
+      if (currentUploadedMediaArray.length === 0) { clearNoteMedia(); return; }
+      
+      list.innerHTML = currentUploadedMediaArray.map(m => {
+        if (m.type === 'pdf') return `<div class="w-20 h-20 flex-shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[10px] text-red-600 font-black tracking-widest">PDF</div>`;
+        // 注意：這裡移除了圖片預覽的 grayscale
+        return `<img src="${m.data}" class="w-20 h-20 flex-shrink-0 object-cover border border-zinc-800">`;
+      }).join('');
+    }
+
+    function clearNoteMedia() { 
+      currentUploadedMediaArray = []; 
+      document.getElementById('note-file').value = ''; 
+      document.getElementById('note-media-preview-container').classList.add('hidden'); 
+    }
     
     function addNote(e) {
       e.preventDefault();
@@ -868,10 +681,20 @@
       const newCat = document.getElementById('note-new-cat').value.trim().toUpperCase();
       
       if (newCat && !state.noteCategories.includes(newCat)) { state.noteCategories.push(newCat); cat = newCat; }
-      if (!text.trim() && !state.currentUploadedMedia) return;
+      if (!text.trim() && currentUploadedMediaArray.length === 0) return;
 
-      state.learningNotes.unshift({ id: Date.now(), date, category: cat, text, media: state.currentUploadedMedia });
-      try { saveData(); } catch (err) { alert('Storage full. Please delete older media notes.'); state.learningNotes.shift(); return; }
+      // 儲存陣列格式的媒體
+      const mediaToSave = currentUploadedMediaArray.length > 0 ? [...currentUploadedMediaArray] : null;
+      
+      state.learningNotes.unshift({ id: Date.now(), date, category: cat, text, media: mediaToSave });
+      
+      try { 
+        saveData(); 
+      } catch (err) { 
+        alert('記憶體已滿！請備份後刪除舊筆記或減少圖片數量。'); 
+        state.learningNotes.shift(); 
+        return; 
+      }
       
       document.getElementById('note-text').value = ''; document.getElementById('note-new-cat').value = '';
       clearNoteMedia(); updateCategoryDropdowns(); renderNotes();
@@ -884,14 +707,35 @@
 
     function openNoteModal(id) {
       const note = state.learningNotes.find(n => n.id === id); if(!note) return;
-      const modal = document.getElementById('note-modal'), container = document.getElementById('modal-media-container');
-      const dateEl = document.getElementById('modal-date'), textEl = document.getElementById('modal-text'), catEl = document.getElementById('modal-category');
+      const modal = document.getElementById('note-modal');
+      const container = document.getElementById('modal-media-container');
+      const dateEl = document.getElementById('modal-date');
+      const textEl = document.getElementById('modal-text');
+      const catEl = document.getElementById('modal-category');
 
-      if(note.media) {
+      // 確保向下相容 (把舊的單一物件轉換成陣列)
+      let mediaArray = Array.isArray(note.media) ? note.media : (note.media ? [note.media] : []);
+
+      if(mediaArray.length > 0) {
         container.classList.remove('hidden');
-        if(note.media.type === 'pdf') container.innerHTML = `<iframe src="${note.media.data}" class="w-full h-full border-none"></iframe>`;
-        else container.innerHTML = `<img src="${note.media.data}" class="w-full h-full object-contain grayscale opacity-80">`;
-      } else { container.classList.add('hidden'); container.innerHTML = ''; }
+        // 建立可以水平滑動的相冊區塊
+        let html = `<div class="flex overflow-x-auto snap-x snap-mandatory w-full h-full">`;
+        html += mediaArray.map(m => `
+          <div class="flex-none w-full h-full snap-center flex items-center justify-center bg-black relative">
+            ${m.type === 'pdf' ? `<iframe src="${m.data}" class="w-full h-full border-none"></iframe>` : `<img src="${m.data}" class="max-h-full w-full object-contain">`}
+          </div>
+        `).join('');
+        html += `</div>`;
+        
+        // 如果有多張，顯示左右滑動提示
+        if (mediaArray.length > 1) {
+          html += `<div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/80 px-3 py-1 border border-zinc-800 text-[8px] font-black text-white tracking-[0.2em] shadow-lg">SWIPE (${mediaArray.length})</div>`;
+        }
+        container.innerHTML = html;
+      } else { 
+        container.classList.add('hidden'); 
+        container.innerHTML = ''; 
+      }
 
       dateEl.textContent = `DATE // ${note.date}`; catEl.textContent = note.category; textEl.textContent = note.text;
       modal.classList.remove('hidden');
@@ -925,25 +769,41 @@
 
         if (filtered.length === 0) { list.innerHTML = `<p class="col-span-2 text-center text-zinc-700 text-[10px] font-black tracking-[0.3em] py-10 uppercase">Empty Folder</p>`; } 
         else {
-          list.innerHTML = filtered.map(note => `
+          list.innerHTML = filtered.map(note => {
+            // 向下相容
+            let mediaArray = Array.isArray(note.media) ? note.media : (note.media ? [note.media] : []);
+            let coverHtml = '';
+            
+            // 抓取第一張圖當作封面
+            if (mediaArray.length > 0) {
+              const m = mediaArray[0];
+              if (m.type === 'pdf') {
+                coverHtml = `<div class="absolute inset-0 bg-zinc-900 flex items-center justify-center"><i data-lucide="file-text" class="w-8 h-8 text-zinc-700"></i></div>`;
+              } else {
+                // 注意：移除了封面的 grayscale，改成 opacity-60 讓色彩呈現但不過於干擾白字
+                coverHtml = `<img src="${m.data}" class="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity group-hover:opacity-80">`;
+              }
+            }
+
+            return `
             <div onclick="openNoteModal(${note.id})" class="bg-black brutal-border overflow-hidden relative cursor-pointer hover:border-zinc-500 transition-colors h-32 flex flex-col group">
-              ${note.media ? (note.media.type === 'pdf' ? `<div class="absolute inset-0 bg-zinc-900 flex items-center justify-center"><i data-lucide="file-text" class="w-8 h-8 text-zinc-700"></i></div>` : `<img src="${note.media.data}" class="absolute inset-0 w-full h-full object-cover grayscale opacity-40">`) : ''}
-              <div class="relative z-10 p-2 flex flex-col h-full bg-gradient-to-t from-black via-black/80 to-transparent">
+              ${coverHtml}
+              ${mediaArray.length > 1 ? `<div class="absolute top-2 right-2 z-20 text-[8px] bg-black/80 px-1 font-black text-white">+${mediaArray.length-1}</div>` : ''}
+              
+              <div class="relative z-10 p-2 flex flex-col h-full bg-gradient-to-t from-black via-black/60 to-transparent">
                 <div class="flex justify-between items-start mb-auto">
-                  <span class="text-[8px] text-zinc-400 border border-zinc-800 font-black tracking-widest px-1 py-0.5">${note.category}</span>
+                  <span class="text-[8px] text-zinc-400 border border-zinc-800 font-black tracking-widest px-1 py-0.5 bg-black/80">${note.category}</span>
                   <button onclick="deleteLearningNote(${note.id})" class="text-zinc-600 hover:text-red-600 bg-black p-0.5 border border-zinc-800"><i data-lucide="x" class="w-3 h-3"></i></button>
                 </div>
                 <p class="text-white text-[9px] font-bold line-clamp-2 leading-relaxed break-all">${note.text}</p>
               </div>
-            </div>`).join('');
+            </div>`;
+          }).join('');
         }
       }
       lucide.createIcons();
     }
 
-  </script>
-</body>
-</html>
   </script>
 </body>
 </html>
